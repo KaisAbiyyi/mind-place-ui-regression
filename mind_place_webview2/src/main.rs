@@ -23,6 +23,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut scenario: String = "stress".to_string();
     let mut duration_sec: f64 = 10.0;
     let mut output_file: Option<String> = None;
+    let mut renderer: String = "canvas".to_string();
+    let mut render_mode: String = "full".to_string();
+    let mut target_fps: f64 = 60.0;
 
     let mut i = 1;
     while i < args.len() {
@@ -48,6 +51,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "--output" => {
                 if i + 1 < args.len() {
                     output_file = Some(args[i + 1].clone());
+                    i += 1;
+                }
+            }
+            "--renderer" => {
+                if i + 1 < args.len() {
+                    renderer = args[i + 1].to_lowercase();
+                    i += 1;
+                }
+            }
+            "--mode" => {
+                if i + 1 < args.len() {
+                    render_mode = args[i + 1].to_lowercase();
+                    i += 1;
+                }
+            }
+            "--target-fps" => {
+                if i + 1 < args.len() {
+                    target_fps = args[i + 1].parse().unwrap_or(60.0);
                     i += 1;
                 }
             }
@@ -84,10 +105,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(&msg) {
                     let msg_type = parsed.get("type").and_then(|t| t.as_str()).unwrap_or("");
                     if msg_type == "page_ready" {
+                        // Apply initial renderer backend and render mode
+                        let init_script = format!(
+                            r#"
+                            (function() {{
+                                if (window.setRendererBackend) window.setRendererBackend('{renderer}');
+                                if (window.setRenderMode) window.setRenderMode('{render_mode}');
+                            }})();
+                            "#,
+                            renderer = renderer,
+                            render_mode = render_mode
+                        );
+                        let _ = webview.evaluate_script(&init_script);
+
                         if !benchmark_started {
                             if let Some(ref path) = benchmark_file {
                                 benchmark_started = true;
-                                println!("[WebView2] Benchmark mode activated for: {}", path);
+                                println!("[WebView2] Benchmark mode activated for: {} (renderer: {}, mode: {}, target_fps: {})", path, renderer, render_mode, target_fps);
                                 let t_load_start = Instant::now();
                                 match fs::read_to_string(path) {
                                     Ok(ds_content) => {
@@ -103,11 +137,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             r#"
                                             (function() {{
                                                 try {{
+                                                    if (window.setRendererBackend) window.setRendererBackend('{renderer}');
+                                                    if (window.setRenderMode) window.setRenderMode('{render_mode}');
                                                     const rawStr = {:?};
                                                     const ds = JSON.parse(rawStr);
                                                     const tLoad = {:.2};
                                                     window.loadHiveDataset(ds);
-                                                    window.runGraphBenchmark('{scenario}', {duration_sec:.1}, function(res) {{
+                                                    window.runGraphBenchmark('{scenario}', {duration_sec:.1}, {target_fps:.1}, function(res) {{
                                                         res.dataset_load_time_ms = tLoad;
                                                         sendNativeMessage({{ type: 'benchmark_result', data: res }});
                                                     }});
@@ -118,8 +154,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             "#,
                                             ds_content,
                                             t_load_ms,
+                                            renderer = renderer,
+                                            render_mode = render_mode,
                                             scenario = scenario,
-                                            duration_sec = duration_sec
+                                            duration_sec = duration_sec,
+                                            target_fps = target_fps
                                         );
 
                                         if let Err(e) = webview.evaluate_script(&script) {
@@ -154,12 +193,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         *control_flow = ControlFlow::Exit;
                     } else if msg_type == "load_dataset_request" {
                         if let Some(size) = parsed.get("size").and_then(|s| s.as_u64()) {
-                            let ds_path = format!(
+                            let p3_path = format!(
+                                "comparison/benchmarks/phase3/datasets/graph_{}.json",
+                                size
+                            );
+                            let legacy_path = format!(
                                 "comparison/benchmarks/graph-stress/datasets/graph_{}.json",
                                 size
                             );
-                            if Path::new(&ds_path).exists() {
-                                if let Ok(content) = fs::read_to_string(&ds_path) {
+                            let target_path = if Path::new(&p3_path).exists() {
+                                p3_path
+                            } else {
+                                legacy_path
+                            };
+
+                            if Path::new(&target_path).exists() {
+                                if let Ok(content) = fs::read_to_string(&target_path) {
                                     let script = format!(
                                         r#"
                                         (function() {{

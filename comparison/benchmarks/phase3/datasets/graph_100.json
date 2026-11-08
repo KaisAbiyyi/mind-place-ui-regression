@@ -1,0 +1,3392 @@
+{
+  "name": "graph_100",
+  "node_count": 100,
+  "edge_count": 325,
+  "density": 0.06565656565656566,
+  "nodes": [
+    {
+      "id": "mind",
+      "title": "Mind Place",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 556.3019,
+      "y": 553.35645,
+      "r": 18.0,
+      "sub": "Central Intelligence component tracking 42 sources.",
+      "summary": "Node mind connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 42,
+      "branches": [
+        "node_1",
+        "node_10",
+        "node_11",
+        "node_14",
+        "node_18",
+        "node_2",
+        "node_23",
+        "node_24"
+      ],
+      "tag": "ROOT / MIND"
+    },
+    {
+      "id": "node_1",
+      "title": "Embedding Matrix",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1414.6544,
+      "y": 142.89581,
+      "r": 8.817718,
+      "sub": "Learning & Practice component tracking 6 sources.",
+      "summary": "Node node_1 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "mind",
+        "node_37",
+        "node_39",
+        "node_81"
+      ],
+      "tag": "LEARNING / NODE_1"
+    },
+    {
+      "id": "node_2",
+      "title": "Graph Tree",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1255.889,
+      "y": -154.86919,
+      "r": 9.239553,
+      "sub": "Learning & Practice component tracking 30 sources.",
+      "summary": "Node node_2 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 30,
+      "branches": [
+        "mind",
+        "node_15",
+        "node_17",
+        "node_32",
+        "node_39",
+        "node_4",
+        "node_66"
+      ],
+      "tag": "LEARNING / NODE_2"
+    },
+    {
+      "id": "node_3",
+      "title": "Token Index",
+      "type": "System",
+      "layer": "research",
+      "x": 978.6173,
+      "y": 383.87766,
+      "r": 8.041726,
+      "sub": "Secure Vault & Keys component tracking 13 sources.",
+      "summary": "Node node_3 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 13,
+      "branches": [
+        "mind",
+        "node_20",
+        "node_30",
+        "node_31",
+        "node_34",
+        "node_37",
+        "node_4",
+        "node_40"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_3"
+    },
+    {
+      "id": "node_4",
+      "title": "Beacon Bridge",
+      "type": "System",
+      "layer": "research",
+      "x": 876.84064,
+      "y": 163.26033,
+      "r": 14.929014,
+      "sub": "Connectivity & MCP component tracking 13 sources.",
+      "summary": "Node node_4 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 13,
+      "branches": [
+        "mind",
+        "node_14",
+        "node_15",
+        "node_2",
+        "node_20",
+        "node_28",
+        "node_3",
+        "node_31"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_4"
+    },
+    {
+      "id": "node_5",
+      "title": "Anchor Parser",
+      "type": "Idea",
+      "layer": "research",
+      "x": 355.02707,
+      "y": 768.0877,
+      "r": 7.9227943,
+      "sub": "Cross-Project Insights component tracking 24 sources.",
+      "summary": "Node node_5 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 24,
+      "branches": [
+        "mind",
+        "node_13",
+        "node_23",
+        "node_42"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_5"
+    },
+    {
+      "id": "node_6",
+      "title": "Broker Link",
+      "type": "System",
+      "layer": "research",
+      "x": 967.46063,
+      "y": -8.397942,
+      "r": 7.681406,
+      "sub": "Connectivity & MCP component tracking 26 sources.",
+      "summary": "Node node_6 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 26,
+      "branches": [
+        "mind",
+        "node_15",
+        "node_20",
+        "node_28",
+        "node_29",
+        "node_32",
+        "node_39",
+        "node_4"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_6"
+    },
+    {
+      "id": "node_7",
+      "title": "Index Storage",
+      "type": "System",
+      "layer": "research",
+      "x": 79.97739,
+      "y": -26.440483,
+      "r": 11.45497,
+      "sub": "Agent Memory & Context component tracking 20 sources.",
+      "summary": "Node node_7 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 20,
+      "branches": [
+        "mind",
+        "node_11",
+        "node_12",
+        "node_17",
+        "node_19",
+        "node_22",
+        "node_29",
+        "node_36"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_7"
+    },
+    {
+      "id": "node_8",
+      "title": "Session Matrix",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 190.38748,
+      "y": 462.38196,
+      "r": 15.498594,
+      "sub": "Conversation Archive component tracking 11 sources.",
+      "summary": "Node node_8 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 11,
+      "branches": [
+        "mind",
+        "node_10",
+        "node_13",
+        "node_21",
+        "node_27",
+        "node_35",
+        "node_62"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_8"
+    },
+    {
+      "id": "node_9",
+      "title": "Kernel Observer",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": 267.46274,
+      "y": -219.31415,
+      "r": 8.911946,
+      "sub": "Personal Context & Life component tracking 30 sources.",
+      "summary": "Node node_9 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 30,
+      "branches": [
+        "mind",
+        "node_12",
+        "node_19",
+        "node_22",
+        "node_29",
+        "node_38",
+        "node_7",
+        "node_85"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_9"
+    },
+    {
+      "id": "node_10",
+      "title": "Relay Dispatcher",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 81.15491,
+      "y": 580.0248,
+      "r": 8.426569,
+      "sub": "Conversation Archive component tracking 20 sources.",
+      "summary": "Node node_10 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 20,
+      "branches": [
+        "mind",
+        "node_13",
+        "node_21",
+        "node_35",
+        "node_8"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_10"
+    },
+    {
+      "id": "node_11",
+      "title": "Worker Controller",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -123.393684,
+      "y": -98.723854,
+      "r": 8.574406,
+      "sub": "Personal Context & Life component tracking 25 sources.",
+      "summary": "Node node_11 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 25,
+      "branches": [
+        "mind",
+        "node_12",
+        "node_19",
+        "node_22",
+        "node_36",
+        "node_46",
+        "node_47",
+        "node_65"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_11"
+    },
+    {
+      "id": "node_12",
+      "title": "Session Stream",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": 54.85132,
+      "y": -77.0793,
+      "r": 13.407591,
+      "sub": "Personal Context & Life component tracking 8 sources.",
+      "summary": "Node node_12 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 8,
+      "branches": [
+        "node_11",
+        "node_17",
+        "node_19",
+        "node_36",
+        "node_44",
+        "node_47",
+        "node_7",
+        "node_9"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_12"
+    },
+    {
+      "id": "node_13",
+      "title": "Index Registry",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 161.66595,
+      "y": 595.8772,
+      "r": 8.201635,
+      "sub": "Conversation Archive component tracking 27 sources.",
+      "summary": "Node node_13 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 27,
+      "branches": [
+        "node_10",
+        "node_21",
+        "node_35",
+        "node_5",
+        "node_8"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_13"
+    },
+    {
+      "id": "node_14",
+      "title": "Session Broker",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 626.11194,
+      "y": 281.99658,
+      "r": 11.372226,
+      "sub": "Central Intelligence component tracking 17 sources.",
+      "summary": "Node node_14 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "mind",
+        "node_18",
+        "node_24",
+        "node_27",
+        "node_4",
+        "node_43"
+      ],
+      "tag": "ROOT / NODE_14"
+    },
+    {
+      "id": "node_15",
+      "title": "Embedding Registry",
+      "type": "System",
+      "layer": "research",
+      "x": 1003.9721,
+      "y": -64.86669,
+      "r": 8.837329,
+      "sub": "Connectivity & MCP component tracking 27 sources.",
+      "summary": "Node node_15 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 27,
+      "branches": [
+        "node_2",
+        "node_28",
+        "node_31",
+        "node_32",
+        "node_39",
+        "node_4",
+        "node_41",
+        "node_44"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_15"
+    },
+    {
+      "id": "node_16",
+      "title": "Pipeline Tree",
+      "type": "Project",
+      "layer": "work",
+      "x": 880.5822,
+      "y": 1052.9896,
+      "r": 15.520328,
+      "sub": "Engineering Workspace component tracking 17 sources.",
+      "summary": "Node node_16 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "node_26",
+        "node_33",
+        "node_45",
+        "node_51",
+        "node_53",
+        "node_59",
+        "node_74"
+      ],
+      "tag": "PROJECT / WORK / NODE_16"
+    },
+    {
+      "id": "node_17",
+      "title": "Kernel Nexus",
+      "type": "System",
+      "layer": "research",
+      "x": 202.12726,
+      "y": 133.58911,
+      "r": 9.029321,
+      "sub": "Agent Memory & Context component tracking 26 sources.",
+      "summary": "Node node_17 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 26,
+      "branches": [
+        "node_12",
+        "node_2",
+        "node_22",
+        "node_24",
+        "node_31",
+        "node_47",
+        "node_7"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_17"
+    },
+    {
+      "id": "node_18",
+      "title": "Protocol Hub",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 556.1223,
+      "y": 251.6992,
+      "r": 8.88282,
+      "sub": "Central Intelligence component tracking 17 sources.",
+      "summary": "Node node_18 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "mind",
+        "node_14",
+        "node_24",
+        "node_27",
+        "node_43",
+        "node_56"
+      ],
+      "tag": "ROOT / NODE_18"
+    },
+    {
+      "id": "node_19",
+      "title": "Index Engine",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -6.1560726,
+      "y": -254.7006,
+      "r": 8.093008,
+      "sub": "Personal Context & Life component tracking 4 sources.",
+      "summary": "Node node_19 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 4,
+      "branches": [
+        "node_11",
+        "node_12",
+        "node_22",
+        "node_36",
+        "node_38",
+        "node_7",
+        "node_70",
+        "node_9"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_19"
+    },
+    {
+      "id": "node_20",
+      "title": "Runtime Registry",
+      "type": "System",
+      "layer": "research",
+      "x": 993.4414,
+      "y": 266.9041,
+      "r": 8.948167,
+      "sub": "Secure Vault & Keys component tracking 15 sources.",
+      "summary": "Node node_20 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 15,
+      "branches": [
+        "node_3",
+        "node_31",
+        "node_32",
+        "node_34",
+        "node_37",
+        "node_39",
+        "node_4",
+        "node_50"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_20"
+    },
+    {
+      "id": "node_21",
+      "title": "Session Resolver",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": -9.448692,
+      "y": 531.5236,
+      "r": 11.612946,
+      "sub": "Conversation Archive component tracking 30 sources.",
+      "summary": "Node node_21 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 30,
+      "branches": [
+        "node_10",
+        "node_13",
+        "node_35",
+        "node_8"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_21"
+    },
+    {
+      "id": "node_22",
+      "title": "Sync Buffer",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": 18.953812,
+      "y": -97.92138,
+      "r": 9.253262,
+      "sub": "Personal Context & Life component tracking 22 sources.",
+      "summary": "Node node_22 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 22,
+      "branches": [
+        "node_11",
+        "node_17",
+        "node_19",
+        "node_36",
+        "node_60",
+        "node_61",
+        "node_7",
+        "node_9"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_22"
+    },
+    {
+      "id": "node_23",
+      "title": "Embedding Router",
+      "type": "Idea",
+      "layer": "research",
+      "x": 453.93347,
+      "y": 732.5956,
+      "r": 8.655086,
+      "sub": "Cross-Project Insights component tracking 12 sources.",
+      "summary": "Node node_23 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 12,
+      "branches": [
+        "mind",
+        "node_42",
+        "node_43",
+        "node_5",
+        "node_51",
+        "node_58"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_23"
+    },
+    {
+      "id": "node_24",
+      "title": "Vector Fabric",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 464.287,
+      "y": 263.9933,
+      "r": 8.570899,
+      "sub": "Central Intelligence component tracking 2 sources.",
+      "summary": "Node node_24 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 2,
+      "branches": [
+        "mind",
+        "node_14",
+        "node_17",
+        "node_18",
+        "node_27",
+        "node_43",
+        "node_56"
+      ],
+      "tag": "ROOT / NODE_24"
+    },
+    {
+      "id": "node_25",
+      "title": "Branch Collector",
+      "type": "Project",
+      "layer": "work",
+      "x": 1119.447,
+      "y": 704.4082,
+      "r": 13.930249,
+      "sub": "Engineering Workspace component tracking 14 sources.",
+      "summary": "Node node_25 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 14,
+      "branches": [
+        "node_26",
+        "node_30",
+        "node_32",
+        "node_33",
+        "node_34",
+        "node_53",
+        "node_57",
+        "node_59"
+      ],
+      "tag": "PROJECT / WORK / NODE_25"
+    },
+    {
+      "id": "node_26",
+      "title": "Context Graph",
+      "type": "Project",
+      "layer": "work",
+      "x": 944.14325,
+      "y": 950.2739,
+      "r": 9.295853,
+      "sub": "Engineering Workspace component tracking 10 sources.",
+      "summary": "Node node_26 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 10,
+      "branches": [
+        "node_16",
+        "node_25",
+        "node_33",
+        "node_36",
+        "node_45",
+        "node_51",
+        "node_53",
+        "node_59"
+      ],
+      "tag": "PROJECT / WORK / NODE_26"
+    },
+    {
+      "id": "node_27",
+      "title": "Neural Bridge",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 460.926,
+      "y": 350.1001,
+      "r": 8.15102,
+      "sub": "Central Intelligence component tracking 33 sources.",
+      "summary": "Node node_27 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 33,
+      "branches": [
+        "mind",
+        "node_14",
+        "node_18",
+        "node_24",
+        "node_43",
+        "node_56",
+        "node_67",
+        "node_8"
+      ],
+      "tag": "ROOT / NODE_27"
+    },
+    {
+      "id": "node_28",
+      "title": "Schema Collector",
+      "type": "System",
+      "layer": "research",
+      "x": 833.43567,
+      "y": -94.965546,
+      "r": 11.293992,
+      "sub": "Connectivity & MCP component tracking 7 sources.",
+      "summary": "Node node_28 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 7,
+      "branches": [
+        "node_15",
+        "node_31",
+        "node_32",
+        "node_4",
+        "node_6",
+        "node_64"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_28"
+    },
+    {
+      "id": "node_29",
+      "title": "Spatial Collector",
+      "type": "System",
+      "layer": "research",
+      "x": 236.61171,
+      "y": -25.424978,
+      "r": 8.078387,
+      "sub": "Agent Memory & Context component tracking 17 sources.",
+      "summary": "Node node_29 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "node_6",
+        "node_60",
+        "node_66",
+        "node_7",
+        "node_9"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_29"
+    },
+    {
+      "id": "node_30",
+      "title": "Relay Nexus",
+      "type": "System",
+      "layer": "research",
+      "x": 1144.5933,
+      "y": 560.84,
+      "r": 7.8263483,
+      "sub": "Secure Vault & Keys component tracking 22 sources.",
+      "summary": "Node node_30 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 22,
+      "branches": [
+        "node_25",
+        "node_3",
+        "node_34",
+        "node_37",
+        "node_50",
+        "node_57",
+        "node_59",
+        "node_69"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_30"
+    },
+    {
+      "id": "node_31",
+      "title": "Agent Observer",
+      "type": "System",
+      "layer": "research",
+      "x": 995.2513,
+      "y": 144.30695,
+      "r": 8.872219,
+      "sub": "Connectivity & MCP component tracking 21 sources.",
+      "summary": "Node node_31 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 21,
+      "branches": [
+        "node_15",
+        "node_17",
+        "node_20",
+        "node_28",
+        "node_3",
+        "node_32",
+        "node_37",
+        "node_4"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_31"
+    },
+    {
+      "id": "node_32",
+      "title": "Memory Filter",
+      "type": "System",
+      "layer": "research",
+      "x": 1063.8396,
+      "y": -29.462448,
+      "r": 9.390007,
+      "sub": "Connectivity & MCP component tracking 28 sources.",
+      "summary": "Node node_32 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 28,
+      "branches": [
+        "node_15",
+        "node_2",
+        "node_20",
+        "node_25",
+        "node_28",
+        "node_31",
+        "node_4",
+        "node_49"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_32"
+    },
+    {
+      "id": "node_33",
+      "title": "Sync Graph",
+      "type": "Project",
+      "layer": "work",
+      "x": 941.62134,
+      "y": 824.2071,
+      "r": 8.18669,
+      "sub": "Engineering Workspace component tracking 24 sources.",
+      "summary": "Node node_33 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 24,
+      "branches": [
+        "node_16",
+        "node_25",
+        "node_26",
+        "node_45",
+        "node_53",
+        "node_70"
+      ],
+      "tag": "PROJECT / WORK / NODE_33"
+    },
+    {
+      "id": "node_34",
+      "title": "Schema Stream",
+      "type": "System",
+      "layer": "research",
+      "x": 1166.4419,
+      "y": 507.76895,
+      "r": 7.6797595,
+      "sub": "Secure Vault & Keys component tracking 5 sources.",
+      "summary": "Node node_34 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 5,
+      "branches": [
+        "node_20",
+        "node_25",
+        "node_3",
+        "node_30",
+        "node_37",
+        "node_50",
+        "node_51",
+        "node_54"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_34"
+    },
+    {
+      "id": "node_35",
+      "title": "Beacon Filter",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 92.9523,
+      "y": 472.31073,
+      "r": 11.7993,
+      "sub": "Conversation Archive component tracking 16 sources.",
+      "summary": "Node node_35 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 16,
+      "branches": [
+        "node_10",
+        "node_13",
+        "node_21",
+        "node_62",
+        "node_68",
+        "node_71",
+        "node_8"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_35"
+    },
+    {
+      "id": "node_36",
+      "title": "Signal Tree",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -134.13171,
+      "y": -138.52275,
+      "r": 7.929629,
+      "sub": "Personal Context & Life component tracking 3 sources.",
+      "summary": "Node node_36 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 3,
+      "branches": [
+        "node_11",
+        "node_12",
+        "node_19",
+        "node_22",
+        "node_26",
+        "node_61",
+        "node_63",
+        "node_65"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_36"
+    },
+    {
+      "id": "node_37",
+      "title": "Vector Vault",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1193.1409,
+      "y": 313.95343,
+      "r": 8.119279,
+      "sub": "Learning & Practice component tracking 25 sources.",
+      "summary": "Node node_37 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 25,
+      "branches": [
+        "node_1",
+        "node_20",
+        "node_3",
+        "node_30",
+        "node_31",
+        "node_34",
+        "node_48",
+        "node_49"
+      ],
+      "tag": "LEARNING / NODE_37"
+    },
+    {
+      "id": "node_38",
+      "title": "Protocol Ledger",
+      "type": "System",
+      "layer": "research",
+      "x": 146.12656,
+      "y": -25.471512,
+      "r": 8.980161,
+      "sub": "Agent Memory & Context component tracking 34 sources.",
+      "summary": "Node node_38 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 34,
+      "branches": [
+        "node_19",
+        "node_53",
+        "node_61",
+        "node_63",
+        "node_66",
+        "node_7",
+        "node_74",
+        "node_76"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_38"
+    },
+    {
+      "id": "node_39",
+      "title": "Schema Tree",
+      "type": "System",
+      "layer": "research",
+      "x": 1192.7449,
+      "y": 57.999847,
+      "r": 8.879386,
+      "sub": "Connectivity & MCP component tracking 6 sources.",
+      "summary": "Node node_39 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_1",
+        "node_15",
+        "node_2",
+        "node_20",
+        "node_48",
+        "node_6",
+        "node_72",
+        "node_78"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_39"
+    },
+    {
+      "id": "node_40",
+      "title": "Broker Nexus",
+      "type": "System",
+      "layer": "research",
+      "x": 968.15686,
+      "y": 133.97662,
+      "r": 8.855295,
+      "sub": "Connectivity & MCP component tracking 21 sources.",
+      "summary": "Node node_40 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 21,
+      "branches": [
+        "node_3",
+        "node_4",
+        "node_55",
+        "node_71",
+        "node_78",
+        "node_80"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_40"
+    },
+    {
+      "id": "node_41",
+      "title": "Branch View",
+      "type": "System",
+      "layer": "research",
+      "x": 890.8661,
+      "y": 93.75685,
+      "r": 8.833596,
+      "sub": "Connectivity & MCP component tracking 18 sources.",
+      "summary": "Node node_41 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 18,
+      "branches": [
+        "node_15",
+        "node_3",
+        "node_4",
+        "node_6",
+        "node_68",
+        "node_80"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_41"
+    },
+    {
+      "id": "node_42",
+      "title": "Retrieval Node",
+      "type": "Idea",
+      "layer": "research",
+      "x": 586.2731,
+      "y": 913.0758,
+      "r": 11.761362,
+      "sub": "Cross-Project Insights component tracking 22 sources.",
+      "summary": "Node node_42 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 22,
+      "branches": [
+        "node_23",
+        "node_45",
+        "node_5",
+        "node_51",
+        "node_55",
+        "node_58",
+        "node_81",
+        "node_82"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_42"
+    },
+    {
+      "id": "node_43",
+      "title": "Branch Broker",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 599.0836,
+      "y": 524.984,
+      "r": 8.050521,
+      "sub": "Central Intelligence component tracking 12 sources.",
+      "summary": "Node node_43 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 12,
+      "branches": [
+        "node_14",
+        "node_18",
+        "node_23",
+        "node_24",
+        "node_27",
+        "node_56",
+        "node_67",
+        "node_79"
+      ],
+      "tag": "ROOT / NODE_43"
+    },
+    {
+      "id": "node_44",
+      "title": "Spatial Node",
+      "type": "System",
+      "layer": "research",
+      "x": 1049.0034,
+      "y": 186.82312,
+      "r": 9.3833885,
+      "sub": "Connectivity & MCP component tracking 10 sources.",
+      "summary": "Node node_44 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 10,
+      "branches": [
+        "node_12",
+        "node_15",
+        "node_4",
+        "node_6"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_44"
+    },
+    {
+      "id": "node_45",
+      "title": "Sync Vault",
+      "type": "Project",
+      "layer": "work",
+      "x": 825.6511,
+      "y": 1030.864,
+      "r": 8.46513,
+      "sub": "Engineering Workspace component tracking 11 sources.",
+      "summary": "Node node_45 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 11,
+      "branches": [
+        "node_16",
+        "node_26",
+        "node_33",
+        "node_42",
+        "node_51",
+        "node_53",
+        "node_70",
+        "node_71"
+      ],
+      "tag": "PROJECT / WORK / NODE_45"
+    },
+    {
+      "id": "node_46",
+      "title": "Graph Service",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -95.05696,
+      "y": -151.95071,
+      "r": 9.161792,
+      "sub": "Personal Context & Life component tracking 23 sources.",
+      "summary": "Node node_46 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 23,
+      "branches": [
+        "node_11",
+        "node_61",
+        "node_63",
+        "node_65",
+        "node_7",
+        "node_73",
+        "node_81",
+        "node_85"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_46"
+    },
+    {
+      "id": "node_47",
+      "title": "Semantic Parser",
+      "type": "System",
+      "layer": "research",
+      "x": 2.838501,
+      "y": -1.5291123,
+      "r": 9.185301,
+      "sub": "Agent Memory & Context component tracking 23 sources.",
+      "summary": "Node node_47 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 23,
+      "branches": [
+        "node_11",
+        "node_12",
+        "node_17",
+        "node_66",
+        "node_7",
+        "node_73",
+        "node_74",
+        "node_76"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_47"
+    },
+    {
+      "id": "node_48",
+      "title": "Provenance Ledger",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1357.198,
+      "y": 87.45814,
+      "r": 8.678803,
+      "sub": "Learning & Practice component tracking 26 sources.",
+      "summary": "Node node_48 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 26,
+      "branches": [
+        "node_37",
+        "node_39",
+        "node_49",
+        "node_52",
+        "node_82"
+      ],
+      "tag": "LEARNING / NODE_48"
+    },
+    {
+      "id": "node_49",
+      "title": "Context Bridge",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1304.5586,
+      "y": 131.92068,
+      "r": 11.602012,
+      "sub": "Learning & Practice component tracking 31 sources.",
+      "summary": "Node node_49 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 31,
+      "branches": [
+        "node_31",
+        "node_32",
+        "node_37",
+        "node_48",
+        "node_52",
+        "node_87"
+      ],
+      "tag": "LEARNING / NODE_49"
+    },
+    {
+      "id": "node_50",
+      "title": "Pipeline Link",
+      "type": "System",
+      "layer": "research",
+      "x": 959.86096,
+      "y": 368.40588,
+      "r": 15.434497,
+      "sub": "Secure Vault & Keys component tracking 17 sources.",
+      "summary": "Node node_50 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "node_20",
+        "node_30",
+        "node_31",
+        "node_34",
+        "node_37",
+        "node_87"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_50"
+    },
+    {
+      "id": "node_51",
+      "title": "Topology View",
+      "type": "Idea",
+      "layer": "research",
+      "x": 632.06836,
+      "y": 935.531,
+      "r": 8.166478,
+      "sub": "Cross-Project Insights component tracking 9 sources.",
+      "summary": "Node node_51 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 9,
+      "branches": [
+        "node_16",
+        "node_23",
+        "node_26",
+        "node_34",
+        "node_42",
+        "node_45",
+        "node_55",
+        "node_58"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_51"
+    },
+    {
+      "id": "node_52",
+      "title": "Ledger Model",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1523.8925,
+      "y": 269.88446,
+      "r": 8.057574,
+      "sub": "Learning & Practice component tracking 30 sources.",
+      "summary": "Node node_52 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 30,
+      "branches": [
+        "node_48",
+        "node_49"
+      ],
+      "tag": "LEARNING / NODE_52"
+    },
+    {
+      "id": "node_53",
+      "title": "Pipeline Hub",
+      "type": "Project",
+      "layer": "work",
+      "x": 940.93024,
+      "y": 849.1914,
+      "r": 8.761061,
+      "sub": "Engineering Workspace component tracking 19 sources.",
+      "summary": "Node node_53 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 19,
+      "branches": [
+        "node_16",
+        "node_25",
+        "node_26",
+        "node_33",
+        "node_38",
+        "node_45",
+        "node_70"
+      ],
+      "tag": "PROJECT / WORK / NODE_53"
+    },
+    {
+      "id": "node_54",
+      "title": "Trace Controller",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1313.8938,
+      "y": 273.66614,
+      "r": 9.049019,
+      "sub": "Learning & Practice component tracking 16 sources.",
+      "summary": "Node node_54 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 16,
+      "branches": [
+        "node_34",
+        "node_37",
+        "node_90",
+        "node_93"
+      ],
+      "tag": "LEARNING / NODE_54"
+    },
+    {
+      "id": "node_55",
+      "title": "Relay Resolver",
+      "type": "Idea",
+      "layer": "research",
+      "x": 420.79413,
+      "y": 1064.6215,
+      "r": 8.779842,
+      "sub": "Cross-Project Insights component tracking 10 sources.",
+      "summary": "Node node_55 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 10,
+      "branches": [
+        "node_4",
+        "node_40",
+        "node_42",
+        "node_51",
+        "node_58",
+        "node_81",
+        "node_82",
+        "node_84"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_55"
+    },
+    {
+      "id": "node_56",
+      "title": "Shard Resolver",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 579.6692,
+      "y": 379.34402,
+      "r": 10.512693,
+      "sub": "Central Intelligence component tracking 3 sources.",
+      "summary": "Node node_56 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 3,
+      "branches": [
+        "node_18",
+        "node_24",
+        "node_27",
+        "node_43",
+        "node_67",
+        "node_79"
+      ],
+      "tag": "ROOT / NODE_56"
+    },
+    {
+      "id": "node_57",
+      "title": "Topology Buffer",
+      "type": "System",
+      "layer": "research",
+      "x": 1157.261,
+      "y": 484.25018,
+      "r": 9.259701,
+      "sub": "Secure Vault & Keys component tracking 4 sources.",
+      "summary": "Node node_57 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 4,
+      "branches": [
+        "node_20",
+        "node_25",
+        "node_30",
+        "node_34",
+        "node_37",
+        "node_66",
+        "node_75",
+        "node_90"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_57"
+    },
+    {
+      "id": "node_58",
+      "title": "Anchor Layer",
+      "type": "Idea",
+      "layer": "research",
+      "x": 434.04547,
+      "y": 821.8245,
+      "r": 9.14258,
+      "sub": "Cross-Project Insights component tracking 6 sources.",
+      "summary": "Node node_58 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_23",
+        "node_42",
+        "node_51",
+        "node_55",
+        "node_79",
+        "node_82",
+        "node_83",
+        "node_84"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_58"
+    },
+    {
+      "id": "node_59",
+      "title": "Agent Index",
+      "type": "Project",
+      "layer": "work",
+      "x": 1030.9171,
+      "y": 747.6113,
+      "r": 7.669881,
+      "sub": "Engineering Workspace component tracking 18 sources.",
+      "summary": "Node node_59 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 18,
+      "branches": [
+        "node_16",
+        "node_25",
+        "node_26",
+        "node_30",
+        "node_70",
+        "node_75"
+      ],
+      "tag": "PROJECT / WORK / NODE_59"
+    },
+    {
+      "id": "node_60",
+      "title": "Neural Core",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -30.84072,
+      "y": -98.75373,
+      "r": 7.828653,
+      "sub": "Personal Context & Life component tracking 19 sources.",
+      "summary": "Node node_60 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 19,
+      "branches": [
+        "node_22",
+        "node_29",
+        "node_65",
+        "node_66",
+        "node_74",
+        "node_85",
+        "node_89",
+        "node_91"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_60"
+    },
+    {
+      "id": "node_61",
+      "title": "Token Dispatcher",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -94.00589,
+      "y": -114.85274,
+      "r": 8.823669,
+      "sub": "Personal Context & Life component tracking 6 sources.",
+      "summary": "Node node_61 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_22",
+        "node_36",
+        "node_38",
+        "node_46",
+        "node_65",
+        "node_74",
+        "node_85",
+        "node_91"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_61"
+    },
+    {
+      "id": "node_62",
+      "title": "Mirror Core",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 138.1878,
+      "y": 458.19357,
+      "r": 8.785988,
+      "sub": "Conversation Archive component tracking 6 sources.",
+      "summary": "Node node_62 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_35",
+        "node_68",
+        "node_71",
+        "node_8",
+        "node_83",
+        "node_86",
+        "node_94"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_62"
+    },
+    {
+      "id": "node_63",
+      "title": "Mirror Ledger",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -150.39441,
+      "y": 46.64099,
+      "r": 10.746187,
+      "sub": "Personal Context & Life component tracking 4 sources.",
+      "summary": "Node node_63 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 4,
+      "branches": [
+        "node_34",
+        "node_36",
+        "node_38",
+        "node_46",
+        "node_91"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_63"
+    },
+    {
+      "id": "node_64",
+      "title": "Anchor Buffer",
+      "type": "System",
+      "layer": "research",
+      "x": 798.16077,
+      "y": -19.077034,
+      "r": 9.360119,
+      "sub": "Connectivity & MCP component tracking 12 sources.",
+      "summary": "Node node_64 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 12,
+      "branches": [
+        "node_28",
+        "node_31",
+        "node_32",
+        "node_87"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_64"
+    },
+    {
+      "id": "node_65",
+      "title": "Retrieval Dispatcher",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -251.08455,
+      "y": -195.98828,
+      "r": 8.094207,
+      "sub": "Personal Context & Life component tracking 32 sources.",
+      "summary": "Node node_65 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 32,
+      "branches": [
+        "node_11",
+        "node_36",
+        "node_46",
+        "node_60",
+        "node_61",
+        "node_90",
+        "node_91"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_65"
+    },
+    {
+      "id": "node_66",
+      "title": "Runtime Parser",
+      "type": "System",
+      "layer": "research",
+      "x": 270.31717,
+      "y": -22.723778,
+      "r": 9.106403,
+      "sub": "Agent Memory & Context component tracking 15 sources.",
+      "summary": "Node node_66 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 15,
+      "branches": [
+        "node_2",
+        "node_29",
+        "node_38",
+        "node_47",
+        "node_57",
+        "node_60",
+        "node_77",
+        "node_89"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_66"
+    },
+    {
+      "id": "node_67",
+      "title": "Vault Matrix",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 648.73334,
+      "y": 383.02667,
+      "r": 9.481362,
+      "sub": "Central Intelligence component tracking 24 sources.",
+      "summary": "Node node_67 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 24,
+      "branches": [
+        "node_27",
+        "node_37",
+        "node_43",
+        "node_56",
+        "node_79"
+      ],
+      "tag": "ROOT / NODE_67"
+    },
+    {
+      "id": "node_68",
+      "title": "Graph Model",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 160.73582,
+      "y": 484.51947,
+      "r": 8.24914,
+      "sub": "Conversation Archive component tracking 6 sources.",
+      "summary": "Node node_68 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_35",
+        "node_41",
+        "node_62",
+        "node_71",
+        "node_83",
+        "node_86",
+        "node_94"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_68"
+    },
+    {
+      "id": "node_69",
+      "title": "Topology Resolver",
+      "type": "System",
+      "layer": "research",
+      "x": 1022.01917,
+      "y": 473.67764,
+      "r": 8.929892,
+      "sub": "Secure Vault & Keys component tracking 2 sources.",
+      "summary": "Node node_69 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 2,
+      "branches": [
+        "node_30",
+        "node_34",
+        "node_75",
+        "node_90"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_69"
+    },
+    {
+      "id": "node_70",
+      "title": "Vault Model",
+      "type": "Project",
+      "layer": "work",
+      "x": 991.82794,
+      "y": 998.4189,
+      "r": 10.88029,
+      "sub": "Engineering Workspace component tracking 23 sources.",
+      "summary": "Node node_70 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 23,
+      "branches": [
+        "node_19",
+        "node_33",
+        "node_45",
+        "node_53",
+        "node_59"
+      ],
+      "tag": "PROJECT / WORK / NODE_70"
+    },
+    {
+      "id": "node_71",
+      "title": "Semantic Parser",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 162.58604,
+      "y": 560.185,
+      "r": 8.161846,
+      "sub": "Conversation Archive component tracking 18 sources.",
+      "summary": "Node node_71 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 18,
+      "branches": [
+        "node_35",
+        "node_40",
+        "node_45",
+        "node_62",
+        "node_68",
+        "node_83",
+        "node_86",
+        "node_94"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_71"
+    },
+    {
+      "id": "node_72",
+      "title": "Vault Storage",
+      "type": "System",
+      "layer": "research",
+      "x": 1066.6301,
+      "y": 51.666542,
+      "r": 7.6631594,
+      "sub": "Connectivity & MCP component tracking 11 sources.",
+      "summary": "Node node_72 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 11,
+      "branches": [
+        "node_32",
+        "node_37",
+        "node_39",
+        "node_93"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_72"
+    },
+    {
+      "id": "node_73",
+      "title": "Kernel Matrix",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -191.3623,
+      "y": -65.21572,
+      "r": 8.898562,
+      "sub": "Personal Context & Life component tracking 16 sources.",
+      "summary": "Node node_73 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 16,
+      "branches": [
+        "node_36",
+        "node_46",
+        "node_47"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_73"
+    },
+    {
+      "id": "node_74",
+      "title": "Relay Registry",
+      "type": "System",
+      "layer": "research",
+      "x": 117.20558,
+      "y": 79.783775,
+      "r": 9.429226,
+      "sub": "Agent Memory & Context component tracking 23 sources.",
+      "summary": "Node node_74 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 23,
+      "branches": [
+        "node_16",
+        "node_31",
+        "node_38",
+        "node_47",
+        "node_60",
+        "node_61",
+        "node_77",
+        "node_89"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_74"
+    },
+    {
+      "id": "node_75",
+      "title": "Session Matrix",
+      "type": "System",
+      "layer": "research",
+      "x": 1226.8113,
+      "y": 627.5314,
+      "r": 14.400319,
+      "sub": "Secure Vault & Keys component tracking 16 sources.",
+      "summary": "Node node_75 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 16,
+      "branches": [
+        "node_57",
+        "node_59",
+        "node_69"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_75"
+    },
+    {
+      "id": "node_76",
+      "title": "Topology Resolver",
+      "type": "System",
+      "layer": "research",
+      "x": 198.42723,
+      "y": 6.044152,
+      "r": 8.860534,
+      "sub": "Agent Memory & Context component tracking 23 sources.",
+      "summary": "Node node_76 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 23,
+      "branches": [
+        "node_38",
+        "node_47"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_76"
+    },
+    {
+      "id": "node_77",
+      "title": "Runtime Stream",
+      "type": "System",
+      "layer": "research",
+      "x": 417.42383,
+      "y": -8.987092,
+      "r": 11.303929,
+      "sub": "Agent Memory & Context component tracking 3 sources.",
+      "summary": "Node node_77 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 3,
+      "branches": [
+        "node_38",
+        "node_66",
+        "node_74"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_77"
+    },
+    {
+      "id": "node_78",
+      "title": "Protocol Vault",
+      "type": "System",
+      "layer": "research",
+      "x": 1141.2839,
+      "y": 31.59008,
+      "r": 8.320141,
+      "sub": "Connectivity & MCP component tracking 24 sources.",
+      "summary": "Node node_78 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 24,
+      "branches": [
+        "node_39",
+        "node_40",
+        "node_51",
+        "node_93"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_78"
+    },
+    {
+      "id": "node_79",
+      "title": "Relay Nexus",
+      "type": "Core intelligence",
+      "layer": "all",
+      "x": 536.0488,
+      "y": 596.06464,
+      "r": 7.934854,
+      "sub": "Central Intelligence component tracking 17 sources.",
+      "summary": "Node node_79 connects Central Intelligence intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [
+        "node_26",
+        "node_43",
+        "node_56",
+        "node_58",
+        "node_67",
+        "node_82"
+      ],
+      "tag": "ROOT / NODE_79"
+    },
+    {
+      "id": "node_80",
+      "title": "Signal Dispatcher",
+      "type": "System",
+      "layer": "research",
+      "x": 1141.0696,
+      "y": 70.90442,
+      "r": 8.652756,
+      "sub": "Connectivity & MCP component tracking 6 sources.",
+      "summary": "Node node_80 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 6,
+      "branches": [
+        "node_40",
+        "node_41",
+        "node_93"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_80"
+    },
+    {
+      "id": "node_81",
+      "title": "Runtime Hub",
+      "type": "Idea",
+      "layer": "research",
+      "x": 521.9166,
+      "y": 1057.5264,
+      "r": 9.360202,
+      "sub": "Cross-Project Insights component tracking 18 sources.",
+      "summary": "Node node_81 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 18,
+      "branches": [
+        "node_1",
+        "node_42",
+        "node_45",
+        "node_46",
+        "node_55"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_81"
+    },
+    {
+      "id": "node_82",
+      "title": "Vector Index",
+      "type": "Idea",
+      "layer": "research",
+      "x": 552.92,
+      "y": 823.42694,
+      "r": 7.941349,
+      "sub": "Cross-Project Insights component tracking 13 sources.",
+      "summary": "Node node_82 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 13,
+      "branches": [
+        "node_32",
+        "node_42",
+        "node_43",
+        "node_48",
+        "node_51",
+        "node_55",
+        "node_58",
+        "node_79"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_82"
+    },
+    {
+      "id": "node_83",
+      "title": "Token Fabric",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 337.58823,
+      "y": 636.88995,
+      "r": 8.728508,
+      "sub": "Conversation Archive component tracking 12 sources.",
+      "summary": "Node node_83 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 12,
+      "branches": [
+        "node_43",
+        "node_58",
+        "node_62",
+        "node_68",
+        "node_71",
+        "node_86"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_83"
+    },
+    {
+      "id": "node_84",
+      "title": "Embedding Resolver",
+      "type": "Idea",
+      "layer": "research",
+      "x": 394.06418,
+      "y": 932.9927,
+      "r": 10.287903,
+      "sub": "Cross-Project Insights component tracking 14 sources.",
+      "summary": "Node node_84 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 14,
+      "branches": [
+        "node_51",
+        "node_55",
+        "node_58"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_84"
+    },
+    {
+      "id": "node_85",
+      "title": "Runtime Fabric",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": 105.11899,
+      "y": -2.7104797,
+      "r": 9.167261,
+      "sub": "Personal Context & Life component tracking 33 sources.",
+      "summary": "Node node_85 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 33,
+      "branches": [
+        "node_46",
+        "node_47",
+        "node_60",
+        "node_61",
+        "node_9"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_85"
+    },
+    {
+      "id": "node_86",
+      "title": "Topology Tree",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 175.6167,
+      "y": 550.68677,
+      "r": 7.8105054,
+      "sub": "Conversation Archive component tracking 27 sources.",
+      "summary": "Node node_86 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 27,
+      "branches": [
+        "node_30",
+        "node_32",
+        "node_62",
+        "node_68",
+        "node_71",
+        "node_83"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_86"
+    },
+    {
+      "id": "node_87",
+      "title": "Trace Runtime",
+      "type": "System",
+      "layer": "research",
+      "x": 1012.1428,
+      "y": 65.51516,
+      "r": 8.055952,
+      "sub": "Connectivity & MCP component tracking 16 sources.",
+      "summary": "Node node_87 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 16,
+      "branches": [
+        "node_49",
+        "node_50",
+        "node_64"
+      ],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_87"
+    },
+    {
+      "id": "node_88",
+      "title": "Schema Fabric",
+      "type": "Idea",
+      "layer": "research",
+      "x": 453.24115,
+      "y": 1024.5612,
+      "r": 9.2944355,
+      "sub": "Cross-Project Insights component tracking 5 sources.",
+      "summary": "Node node_88 connects Cross-Project Insights intelligence into the active Mind Place spatial index.",
+      "sources": 5,
+      "branches": [
+        "node_51",
+        "node_55"
+      ],
+      "tag": "INSIGHT / CROSS / NODE_88"
+    },
+    {
+      "id": "node_89",
+      "title": "Cache Hub",
+      "type": "System",
+      "layer": "research",
+      "x": 208.46655,
+      "y": 76.70802,
+      "r": 8.735325,
+      "sub": "Agent Memory & Context component tracking 10 sources.",
+      "summary": "Node node_89 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 10,
+      "branches": [
+        "node_36",
+        "node_60",
+        "node_66",
+        "node_74"
+      ],
+      "tag": "SYSTEM / MEMORY / NODE_89"
+    },
+    {
+      "id": "node_90",
+      "title": "Context View",
+      "type": "System",
+      "layer": "research",
+      "x": 1260.9023,
+      "y": 469.6396,
+      "r": 7.6680613,
+      "sub": "Secure Vault & Keys component tracking 32 sources.",
+      "summary": "Node node_90 connects Secure Vault & Keys intelligence into the active Mind Place spatial index.",
+      "sources": 32,
+      "branches": [
+        "node_54",
+        "node_57",
+        "node_65",
+        "node_69"
+      ],
+      "tag": "SYSTEM / TRUST / NODE_90"
+    },
+    {
+      "id": "node_91",
+      "title": "Worker Observer",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -241.15224,
+      "y": -7.8717422,
+      "r": 10.953514,
+      "sub": "Personal Context & Life component tracking 34 sources.",
+      "summary": "Node node_91 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 34,
+      "branches": [
+        "node_60",
+        "node_61",
+        "node_63",
+        "node_65"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_91"
+    },
+    {
+      "id": "node_92",
+      "title": "Token Gateway",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": 14.439106,
+      "y": 16.665215,
+      "r": 8.62708,
+      "sub": "Personal Context & Life component tracking 20 sources.",
+      "summary": "Node node_92 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 20,
+      "branches": [
+        "node_60",
+        "node_61"
+      ],
+      "tag": "LIFE / PERSONAL / NODE_92"
+    },
+    {
+      "id": "node_93",
+      "title": "Token View",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1105.8094,
+      "y": 98.59505,
+      "r": 9.068075,
+      "sub": "Learning & Practice component tracking 18 sources.",
+      "summary": "Node node_93 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 18,
+      "branches": [
+        "node_31",
+        "node_46",
+        "node_54",
+        "node_72",
+        "node_78",
+        "node_80"
+      ],
+      "tag": "LEARNING / NODE_93"
+    },
+    {
+      "id": "node_94",
+      "title": "Neural Link",
+      "type": "Knowledge",
+      "layer": "research",
+      "x": 162.13777,
+      "y": 526.0141,
+      "r": 8.8933935,
+      "sub": "Conversation Archive component tracking 14 sources.",
+      "summary": "Node node_94 connects Conversation Archive intelligence into the active Mind Place spatial index.",
+      "sources": 14,
+      "branches": [
+        "node_3",
+        "node_62",
+        "node_68",
+        "node_71"
+      ],
+      "tag": "KNOWLEDGE / ARCHIVE / NODE_94"
+    },
+    {
+      "id": "node_95",
+      "title": "Provenance Bridge",
+      "type": "System",
+      "layer": "research",
+      "x": 374.42908,
+      "y": 148.44412,
+      "r": 8.653269,
+      "sub": "Agent Memory & Context component tracking 14 sources.",
+      "summary": "Node node_95 connects Agent Memory & Context intelligence into the active Mind Place spatial index.",
+      "sources": 14,
+      "branches": [],
+      "tag": "SYSTEM / MEMORY / NODE_95"
+    },
+    {
+      "id": "node_96",
+      "title": "Token Hub",
+      "type": "Idea",
+      "layer": "learning",
+      "x": 1398.181,
+      "y": 97.853584,
+      "r": 7.947816,
+      "sub": "Learning & Practice component tracking 21 sources.",
+      "summary": "Node node_96 connects Learning & Practice intelligence into the active Mind Place spatial index.",
+      "sources": 21,
+      "branches": [],
+      "tag": "LEARNING / NODE_96"
+    },
+    {
+      "id": "node_97",
+      "title": "Retrieval Tree",
+      "type": "Knowledge",
+      "layer": "life",
+      "x": -79.22923,
+      "y": -111.04619,
+      "r": 7.805047,
+      "sub": "Personal Context & Life component tracking 17 sources.",
+      "summary": "Node node_97 connects Personal Context & Life intelligence into the active Mind Place spatial index.",
+      "sources": 17,
+      "branches": [],
+      "tag": "LIFE / PERSONAL / NODE_97"
+    },
+    {
+      "id": "node_98",
+      "title": "Retrieval Fabric",
+      "type": "System",
+      "layer": "research",
+      "x": 1057.8827,
+      "y": -12.759651,
+      "r": 11.675142,
+      "sub": "Connectivity & MCP component tracking 34 sources.",
+      "summary": "Node node_98 connects Connectivity & MCP intelligence into the active Mind Place spatial index.",
+      "sources": 34,
+      "branches": [],
+      "tag": "SYSTEM / CONNECTIVITY / NODE_98"
+    },
+    {
+      "id": "node_99",
+      "title": "Semantic View",
+      "type": "Project",
+      "layer": "work",
+      "x": 1161.6748,
+      "y": 762.1754,
+      "r": 8.568723,
+      "sub": "Engineering Workspace component tracking 24 sources.",
+      "summary": "Node node_99 connects Engineering Workspace intelligence into the active Mind Place spatial index.",
+      "sources": 24,
+      "branches": [],
+      "tag": "PROJECT / WORK / NODE_99"
+    }
+  ],
+  "edges": [
+    [
+      "mind",
+      "node_1"
+    ],
+    [
+      "mind",
+      "node_2"
+    ],
+    [
+      "mind",
+      "node_3"
+    ],
+    [
+      "mind",
+      "node_4"
+    ],
+    [
+      "mind",
+      "node_5"
+    ],
+    [
+      "mind",
+      "node_6"
+    ],
+    [
+      "mind",
+      "node_7"
+    ],
+    [
+      "mind",
+      "node_8"
+    ],
+    [
+      "mind",
+      "node_9"
+    ],
+    [
+      "mind",
+      "node_10"
+    ],
+    [
+      "mind",
+      "node_11"
+    ],
+    [
+      "mind",
+      "node_14"
+    ],
+    [
+      "mind",
+      "node_18"
+    ],
+    [
+      "mind",
+      "node_23"
+    ],
+    [
+      "mind",
+      "node_24"
+    ],
+    [
+      "mind",
+      "node_27"
+    ],
+    [
+      "node_1",
+      "node_37"
+    ],
+    [
+      "node_1",
+      "node_39"
+    ],
+    [
+      "node_1",
+      "node_81"
+    ],
+    [
+      "node_2",
+      "node_4"
+    ],
+    [
+      "node_2",
+      "node_15"
+    ],
+    [
+      "node_2",
+      "node_17"
+    ],
+    [
+      "node_2",
+      "node_32"
+    ],
+    [
+      "node_2",
+      "node_39"
+    ],
+    [
+      "node_2",
+      "node_66"
+    ],
+    [
+      "node_3",
+      "node_4"
+    ],
+    [
+      "node_3",
+      "node_20"
+    ],
+    [
+      "node_3",
+      "node_30"
+    ],
+    [
+      "node_3",
+      "node_31"
+    ],
+    [
+      "node_3",
+      "node_34"
+    ],
+    [
+      "node_3",
+      "node_37"
+    ],
+    [
+      "node_3",
+      "node_40"
+    ],
+    [
+      "node_3",
+      "node_41"
+    ],
+    [
+      "node_3",
+      "node_94"
+    ],
+    [
+      "node_4",
+      "node_6"
+    ],
+    [
+      "node_4",
+      "node_14"
+    ],
+    [
+      "node_4",
+      "node_15"
+    ],
+    [
+      "node_4",
+      "node_20"
+    ],
+    [
+      "node_4",
+      "node_28"
+    ],
+    [
+      "node_4",
+      "node_31"
+    ],
+    [
+      "node_4",
+      "node_32"
+    ],
+    [
+      "node_4",
+      "node_40"
+    ],
+    [
+      "node_4",
+      "node_41"
+    ],
+    [
+      "node_4",
+      "node_44"
+    ],
+    [
+      "node_4",
+      "node_55"
+    ],
+    [
+      "node_5",
+      "node_13"
+    ],
+    [
+      "node_5",
+      "node_23"
+    ],
+    [
+      "node_5",
+      "node_42"
+    ],
+    [
+      "node_6",
+      "node_15"
+    ],
+    [
+      "node_6",
+      "node_20"
+    ],
+    [
+      "node_6",
+      "node_28"
+    ],
+    [
+      "node_6",
+      "node_29"
+    ],
+    [
+      "node_6",
+      "node_32"
+    ],
+    [
+      "node_6",
+      "node_39"
+    ],
+    [
+      "node_6",
+      "node_41"
+    ],
+    [
+      "node_6",
+      "node_44"
+    ],
+    [
+      "node_7",
+      "node_9"
+    ],
+    [
+      "node_7",
+      "node_11"
+    ],
+    [
+      "node_7",
+      "node_12"
+    ],
+    [
+      "node_7",
+      "node_17"
+    ],
+    [
+      "node_7",
+      "node_19"
+    ],
+    [
+      "node_7",
+      "node_22"
+    ],
+    [
+      "node_7",
+      "node_29"
+    ],
+    [
+      "node_7",
+      "node_36"
+    ],
+    [
+      "node_7",
+      "node_38"
+    ],
+    [
+      "node_7",
+      "node_46"
+    ],
+    [
+      "node_7",
+      "node_47"
+    ],
+    [
+      "node_8",
+      "node_10"
+    ],
+    [
+      "node_8",
+      "node_13"
+    ],
+    [
+      "node_8",
+      "node_21"
+    ],
+    [
+      "node_8",
+      "node_27"
+    ],
+    [
+      "node_8",
+      "node_35"
+    ],
+    [
+      "node_8",
+      "node_62"
+    ],
+    [
+      "node_9",
+      "node_12"
+    ],
+    [
+      "node_9",
+      "node_19"
+    ],
+    [
+      "node_9",
+      "node_22"
+    ],
+    [
+      "node_9",
+      "node_29"
+    ],
+    [
+      "node_9",
+      "node_38"
+    ],
+    [
+      "node_9",
+      "node_85"
+    ],
+    [
+      "node_10",
+      "node_13"
+    ],
+    [
+      "node_10",
+      "node_21"
+    ],
+    [
+      "node_10",
+      "node_35"
+    ],
+    [
+      "node_11",
+      "node_12"
+    ],
+    [
+      "node_11",
+      "node_19"
+    ],
+    [
+      "node_11",
+      "node_22"
+    ],
+    [
+      "node_11",
+      "node_36"
+    ],
+    [
+      "node_11",
+      "node_46"
+    ],
+    [
+      "node_11",
+      "node_47"
+    ],
+    [
+      "node_11",
+      "node_65"
+    ],
+    [
+      "node_12",
+      "node_17"
+    ],
+    [
+      "node_12",
+      "node_19"
+    ],
+    [
+      "node_12",
+      "node_36"
+    ],
+    [
+      "node_12",
+      "node_44"
+    ],
+    [
+      "node_12",
+      "node_47"
+    ],
+    [
+      "node_13",
+      "node_21"
+    ],
+    [
+      "node_13",
+      "node_35"
+    ],
+    [
+      "node_14",
+      "node_18"
+    ],
+    [
+      "node_14",
+      "node_24"
+    ],
+    [
+      "node_14",
+      "node_27"
+    ],
+    [
+      "node_14",
+      "node_43"
+    ],
+    [
+      "node_15",
+      "node_28"
+    ],
+    [
+      "node_15",
+      "node_31"
+    ],
+    [
+      "node_15",
+      "node_32"
+    ],
+    [
+      "node_15",
+      "node_39"
+    ],
+    [
+      "node_15",
+      "node_41"
+    ],
+    [
+      "node_15",
+      "node_44"
+    ],
+    [
+      "node_16",
+      "node_26"
+    ],
+    [
+      "node_16",
+      "node_33"
+    ],
+    [
+      "node_16",
+      "node_45"
+    ],
+    [
+      "node_16",
+      "node_51"
+    ],
+    [
+      "node_16",
+      "node_53"
+    ],
+    [
+      "node_16",
+      "node_59"
+    ],
+    [
+      "node_16",
+      "node_74"
+    ],
+    [
+      "node_17",
+      "node_22"
+    ],
+    [
+      "node_17",
+      "node_24"
+    ],
+    [
+      "node_17",
+      "node_31"
+    ],
+    [
+      "node_17",
+      "node_47"
+    ],
+    [
+      "node_18",
+      "node_24"
+    ],
+    [
+      "node_18",
+      "node_27"
+    ],
+    [
+      "node_18",
+      "node_43"
+    ],
+    [
+      "node_18",
+      "node_56"
+    ],
+    [
+      "node_19",
+      "node_22"
+    ],
+    [
+      "node_19",
+      "node_36"
+    ],
+    [
+      "node_19",
+      "node_38"
+    ],
+    [
+      "node_19",
+      "node_70"
+    ],
+    [
+      "node_20",
+      "node_31"
+    ],
+    [
+      "node_20",
+      "node_32"
+    ],
+    [
+      "node_20",
+      "node_34"
+    ],
+    [
+      "node_20",
+      "node_37"
+    ],
+    [
+      "node_20",
+      "node_39"
+    ],
+    [
+      "node_20",
+      "node_50"
+    ],
+    [
+      "node_20",
+      "node_57"
+    ],
+    [
+      "node_21",
+      "node_35"
+    ],
+    [
+      "node_22",
+      "node_36"
+    ],
+    [
+      "node_22",
+      "node_60"
+    ],
+    [
+      "node_22",
+      "node_61"
+    ],
+    [
+      "node_23",
+      "node_42"
+    ],
+    [
+      "node_23",
+      "node_43"
+    ],
+    [
+      "node_23",
+      "node_51"
+    ],
+    [
+      "node_23",
+      "node_58"
+    ],
+    [
+      "node_24",
+      "node_27"
+    ],
+    [
+      "node_24",
+      "node_43"
+    ],
+    [
+      "node_24",
+      "node_56"
+    ],
+    [
+      "node_25",
+      "node_26"
+    ],
+    [
+      "node_25",
+      "node_30"
+    ],
+    [
+      "node_25",
+      "node_32"
+    ],
+    [
+      "node_25",
+      "node_33"
+    ],
+    [
+      "node_25",
+      "node_34"
+    ],
+    [
+      "node_25",
+      "node_53"
+    ],
+    [
+      "node_25",
+      "node_57"
+    ],
+    [
+      "node_25",
+      "node_59"
+    ],
+    [
+      "node_26",
+      "node_33"
+    ],
+    [
+      "node_26",
+      "node_36"
+    ],
+    [
+      "node_26",
+      "node_45"
+    ],
+    [
+      "node_26",
+      "node_51"
+    ],
+    [
+      "node_26",
+      "node_53"
+    ],
+    [
+      "node_26",
+      "node_59"
+    ],
+    [
+      "node_26",
+      "node_79"
+    ],
+    [
+      "node_27",
+      "node_43"
+    ],
+    [
+      "node_27",
+      "node_56"
+    ],
+    [
+      "node_27",
+      "node_67"
+    ],
+    [
+      "node_28",
+      "node_31"
+    ],
+    [
+      "node_28",
+      "node_32"
+    ],
+    [
+      "node_28",
+      "node_64"
+    ],
+    [
+      "node_29",
+      "node_60"
+    ],
+    [
+      "node_29",
+      "node_66"
+    ],
+    [
+      "node_30",
+      "node_34"
+    ],
+    [
+      "node_30",
+      "node_37"
+    ],
+    [
+      "node_30",
+      "node_50"
+    ],
+    [
+      "node_30",
+      "node_57"
+    ],
+    [
+      "node_30",
+      "node_59"
+    ],
+    [
+      "node_30",
+      "node_69"
+    ],
+    [
+      "node_30",
+      "node_86"
+    ],
+    [
+      "node_31",
+      "node_32"
+    ],
+    [
+      "node_31",
+      "node_37"
+    ],
+    [
+      "node_31",
+      "node_49"
+    ],
+    [
+      "node_31",
+      "node_50"
+    ],
+    [
+      "node_31",
+      "node_64"
+    ],
+    [
+      "node_31",
+      "node_74"
+    ],
+    [
+      "node_31",
+      "node_93"
+    ],
+    [
+      "node_32",
+      "node_49"
+    ],
+    [
+      "node_32",
+      "node_64"
+    ],
+    [
+      "node_32",
+      "node_72"
+    ],
+    [
+      "node_32",
+      "node_82"
+    ],
+    [
+      "node_32",
+      "node_86"
+    ],
+    [
+      "node_33",
+      "node_45"
+    ],
+    [
+      "node_33",
+      "node_53"
+    ],
+    [
+      "node_33",
+      "node_70"
+    ],
+    [
+      "node_34",
+      "node_37"
+    ],
+    [
+      "node_34",
+      "node_50"
+    ],
+    [
+      "node_34",
+      "node_51"
+    ],
+    [
+      "node_34",
+      "node_54"
+    ],
+    [
+      "node_34",
+      "node_57"
+    ],
+    [
+      "node_34",
+      "node_63"
+    ],
+    [
+      "node_34",
+      "node_69"
+    ],
+    [
+      "node_35",
+      "node_62"
+    ],
+    [
+      "node_35",
+      "node_68"
+    ],
+    [
+      "node_35",
+      "node_71"
+    ],
+    [
+      "node_36",
+      "node_61"
+    ],
+    [
+      "node_36",
+      "node_63"
+    ],
+    [
+      "node_36",
+      "node_65"
+    ],
+    [
+      "node_36",
+      "node_73"
+    ],
+    [
+      "node_36",
+      "node_89"
+    ],
+    [
+      "node_37",
+      "node_48"
+    ],
+    [
+      "node_37",
+      "node_49"
+    ],
+    [
+      "node_37",
+      "node_50"
+    ],
+    [
+      "node_37",
+      "node_54"
+    ],
+    [
+      "node_37",
+      "node_57"
+    ],
+    [
+      "node_37",
+      "node_67"
+    ],
+    [
+      "node_37",
+      "node_72"
+    ],
+    [
+      "node_38",
+      "node_53"
+    ],
+    [
+      "node_38",
+      "node_61"
+    ],
+    [
+      "node_38",
+      "node_63"
+    ],
+    [
+      "node_38",
+      "node_66"
+    ],
+    [
+      "node_38",
+      "node_74"
+    ],
+    [
+      "node_38",
+      "node_76"
+    ],
+    [
+      "node_38",
+      "node_77"
+    ],
+    [
+      "node_39",
+      "node_48"
+    ],
+    [
+      "node_39",
+      "node_72"
+    ],
+    [
+      "node_39",
+      "node_78"
+    ],
+    [
+      "node_40",
+      "node_55"
+    ],
+    [
+      "node_40",
+      "node_71"
+    ],
+    [
+      "node_40",
+      "node_78"
+    ],
+    [
+      "node_40",
+      "node_80"
+    ],
+    [
+      "node_41",
+      "node_68"
+    ],
+    [
+      "node_41",
+      "node_80"
+    ],
+    [
+      "node_42",
+      "node_45"
+    ],
+    [
+      "node_42",
+      "node_51"
+    ],
+    [
+      "node_42",
+      "node_55"
+    ],
+    [
+      "node_42",
+      "node_58"
+    ],
+    [
+      "node_42",
+      "node_81"
+    ],
+    [
+      "node_42",
+      "node_82"
+    ],
+    [
+      "node_43",
+      "node_56"
+    ],
+    [
+      "node_43",
+      "node_67"
+    ],
+    [
+      "node_43",
+      "node_79"
+    ],
+    [
+      "node_43",
+      "node_82"
+    ],
+    [
+      "node_43",
+      "node_83"
+    ],
+    [
+      "node_45",
+      "node_51"
+    ],
+    [
+      "node_45",
+      "node_53"
+    ],
+    [
+      "node_45",
+      "node_70"
+    ],
+    [
+      "node_45",
+      "node_71"
+    ],
+    [
+      "node_45",
+      "node_81"
+    ],
+    [
+      "node_46",
+      "node_61"
+    ],
+    [
+      "node_46",
+      "node_63"
+    ],
+    [
+      "node_46",
+      "node_65"
+    ],
+    [
+      "node_46",
+      "node_73"
+    ],
+    [
+      "node_46",
+      "node_81"
+    ],
+    [
+      "node_46",
+      "node_85"
+    ],
+    [
+      "node_46",
+      "node_93"
+    ],
+    [
+      "node_47",
+      "node_66"
+    ],
+    [
+      "node_47",
+      "node_73"
+    ],
+    [
+      "node_47",
+      "node_74"
+    ],
+    [
+      "node_47",
+      "node_76"
+    ],
+    [
+      "node_47",
+      "node_85"
+    ],
+    [
+      "node_48",
+      "node_49"
+    ],
+    [
+      "node_48",
+      "node_52"
+    ],
+    [
+      "node_48",
+      "node_82"
+    ],
+    [
+      "node_49",
+      "node_52"
+    ],
+    [
+      "node_49",
+      "node_87"
+    ],
+    [
+      "node_50",
+      "node_87"
+    ],
+    [
+      "node_51",
+      "node_55"
+    ],
+    [
+      "node_51",
+      "node_58"
+    ],
+    [
+      "node_51",
+      "node_78"
+    ],
+    [
+      "node_51",
+      "node_82"
+    ],
+    [
+      "node_51",
+      "node_84"
+    ],
+    [
+      "node_51",
+      "node_88"
+    ],
+    [
+      "node_53",
+      "node_70"
+    ],
+    [
+      "node_54",
+      "node_90"
+    ],
+    [
+      "node_54",
+      "node_93"
+    ],
+    [
+      "node_55",
+      "node_58"
+    ],
+    [
+      "node_55",
+      "node_81"
+    ],
+    [
+      "node_55",
+      "node_82"
+    ],
+    [
+      "node_55",
+      "node_84"
+    ],
+    [
+      "node_55",
+      "node_88"
+    ],
+    [
+      "node_56",
+      "node_67"
+    ],
+    [
+      "node_56",
+      "node_79"
+    ],
+    [
+      "node_57",
+      "node_66"
+    ],
+    [
+      "node_57",
+      "node_75"
+    ],
+    [
+      "node_57",
+      "node_90"
+    ],
+    [
+      "node_58",
+      "node_79"
+    ],
+    [
+      "node_58",
+      "node_82"
+    ],
+    [
+      "node_58",
+      "node_83"
+    ],
+    [
+      "node_58",
+      "node_84"
+    ],
+    [
+      "node_59",
+      "node_70"
+    ],
+    [
+      "node_59",
+      "node_75"
+    ],
+    [
+      "node_60",
+      "node_65"
+    ],
+    [
+      "node_60",
+      "node_66"
+    ],
+    [
+      "node_60",
+      "node_74"
+    ],
+    [
+      "node_60",
+      "node_85"
+    ],
+    [
+      "node_60",
+      "node_89"
+    ],
+    [
+      "node_60",
+      "node_91"
+    ],
+    [
+      "node_60",
+      "node_92"
+    ],
+    [
+      "node_61",
+      "node_65"
+    ],
+    [
+      "node_61",
+      "node_74"
+    ],
+    [
+      "node_61",
+      "node_85"
+    ],
+    [
+      "node_61",
+      "node_91"
+    ],
+    [
+      "node_61",
+      "node_92"
+    ],
+    [
+      "node_62",
+      "node_68"
+    ],
+    [
+      "node_62",
+      "node_71"
+    ],
+    [
+      "node_62",
+      "node_83"
+    ],
+    [
+      "node_62",
+      "node_86"
+    ],
+    [
+      "node_62",
+      "node_94"
+    ],
+    [
+      "node_63",
+      "node_91"
+    ],
+    [
+      "node_64",
+      "node_87"
+    ],
+    [
+      "node_65",
+      "node_90"
+    ],
+    [
+      "node_65",
+      "node_91"
+    ],
+    [
+      "node_66",
+      "node_77"
+    ],
+    [
+      "node_66",
+      "node_89"
+    ],
+    [
+      "node_67",
+      "node_79"
+    ],
+    [
+      "node_68",
+      "node_71"
+    ],
+    [
+      "node_68",
+      "node_83"
+    ],
+    [
+      "node_68",
+      "node_86"
+    ],
+    [
+      "node_68",
+      "node_94"
+    ],
+    [
+      "node_69",
+      "node_75"
+    ],
+    [
+      "node_69",
+      "node_90"
+    ],
+    [
+      "node_71",
+      "node_83"
+    ],
+    [
+      "node_71",
+      "node_86"
+    ],
+    [
+      "node_71",
+      "node_94"
+    ],
+    [
+      "node_72",
+      "node_93"
+    ],
+    [
+      "node_74",
+      "node_77"
+    ],
+    [
+      "node_74",
+      "node_89"
+    ],
+    [
+      "node_78",
+      "node_93"
+    ],
+    [
+      "node_79",
+      "node_82"
+    ],
+    [
+      "node_80",
+      "node_93"
+    ],
+    [
+      "node_83",
+      "node_86"
+    ]
+  ]
+}

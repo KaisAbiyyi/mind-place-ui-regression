@@ -2345,7 +2345,16 @@ h1 {
               <option value="100">Benchmark: 100 nodes</option>
               <option value="1000">Benchmark: 1,000 nodes</option>
               <option value="10000">Benchmark: 10,000 nodes</option>
+              <option value="25000">Benchmark: 25,000 nodes</option>
             </select>
+            <select id="hiveModeSelect" class="btn" style="padding:6px 10px;font-size:12px;font-weight:600;font-family:inherit;background:var(--bg-surface);color:var(--text-primary);border:1px solid var(--border-strong);border-radius:var(--radius-sm);cursor:pointer;">
+              <option value="full">Mode: Full-Fidelity</option>
+              <option value="lod">Mode: Optimized LOD</option>
+            </select>
+            <div style="display:flex;border:1px solid var(--border-strong);border-radius:var(--radius-sm);overflow:hidden;">
+              <button id="btnRendererCanvas" class="btn active" style="padding:6px 10px;font-size:11px;font-weight:700;border:none;border-radius:0;">Canvas 2D</button>
+              <button id="btnRendererWebGL2" class="btn" style="padding:6px 10px;font-size:11px;font-weight:700;border:none;border-radius:0;">WebGL2</button>
+            </div>
             <button class="btn" id="hiveTraceToggle">Toggle Edge Pulse Trace</button>
             <button class="btn" id="hiveExplain">Graph Principles ↗</button>
           </div>
@@ -2373,6 +2382,8 @@ h1 {
             </div>
 
             <canvas id="hiveCanvas"></canvas>
+            <canvas id="hiveGlCanvas" style="display:none;position:absolute;left:0;top:0;width:100%;height:100%;"></canvas>
+            <canvas id="hiveTextCanvas" style="display:none;position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;"></canvas>
             <div class="hive-tooltip" id="hiveTooltip">
               <b></b>
               <span></span>
@@ -4220,18 +4231,77 @@ let W = 0, H = 0, dpr = 1, hovered = null, selected = "mind", filter = "all", qu
 let camera = { x: 600, y: 400, zoom: 1, tx: 600, ty: 400, tz: 1 };
 let frame = null, time = 0;
 
+let currentRenderer = "canvas";
+let currentMode = "full";
+let isBenchmarking = false;
+let latestPaintMetrics = {
+  cpu_draw_ms: 0,
+  nodes_rendered: 0,
+  edges_rendered: 0,
+  labels_rendered: 0,
+  primitives_culled: 0
+};
+
+const hiveGlCanvas = $("#hiveGlCanvas");
+const hiveTextCanvas = $("#hiveTextCanvas");
+const tctx = hiveTextCanvas ? hiveTextCanvas.getContext("2d") : null;
+
+window.setRendererBackend = function(r) {
+  r = (r || "canvas").toLowerCase();
+  if (r === "webgl2" || r === "gl") {
+    currentRenderer = "webgl2";
+    if (hiveCanvas) hiveCanvas.style.display = "none";
+    if (hiveGlCanvas) hiveGlCanvas.style.display = "block";
+    if (hiveTextCanvas) hiveTextCanvas.style.display = "block";
+    $("#btnRendererCanvas")?.classList.remove("active");
+    $("#btnRendererWebGL2")?.classList.add("active");
+    initHiveGL();
+  } else {
+    currentRenderer = "canvas";
+    if (hiveCanvas) hiveCanvas.style.display = "block";
+    if (hiveGlCanvas) hiveGlCanvas.style.display = "none";
+    if (hiveTextCanvas) hiveTextCanvas.style.display = "none";
+    $("#btnRendererCanvas")?.classList.add("active");
+    $("#btnRendererWebGL2")?.classList.remove("active");
+  }
+  if (activePage === "hive") resizeHive();
+};
+
+window.setRenderMode = function(m) {
+  currentMode = (m || "full").toLowerCase();
+  const sel = $("#hiveModeSelect");
+  if (sel) sel.value = currentMode;
+};
+
 window.loadHiveDataset = function(ds) {
   if (typeof ds === "string") ds = JSON.parse(ds);
   nodes = [...ds.nodes];
   edges = [...ds.edges];
   byId = Object.fromEntries(nodes.map(n => [n.id, n]));
   nodes.sort((a, b) => a.r - b.r);
+
+  // Precompute invariant Bezier control points and graph-space AABB bounds
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    const a = byId[e[0]], b = byId[e[1]];
+    if (a && b) {
+      const mx = (a.x + b.x) / 2 + (b.y - a.y) * 0.06;
+      const my = (a.y + b.y) / 2 - (b.x - a.x) * 0.06;
+      e._mx = mx;
+      e._my = my;
+      e._minX = Math.min(a.x, b.x, mx);
+      e._minY = Math.min(a.y, b.y, my);
+      e._maxX = Math.max(a.x, b.x, mx);
+      e._maxY = Math.max(a.y, b.y, my);
+    }
+  }
+
   _hiveNodeScale = Math.max(1.0, Math.sqrt(nodes.length / 33.0));
   selected = nodes[0]?.id || "mind";
   camera.x = 600; camera.y = 400; camera.zoom = 1;
   camera.tx = 600; camera.ty = 400; camera.tz = 1;
   
-  const subEl = document.querySelector("#pageHive .page-sub");
+  const subEl = document.querySelector("#page-hive .page-sub") || document.querySelector("#pageHive .page-sub");
   if (subEl) {
     subEl.textContent = `Interactive monochrome topology of ${nodes.length} concept clusters and ${edges.length} verified provenance edges. Isolated memories remain unforced.`;
   }

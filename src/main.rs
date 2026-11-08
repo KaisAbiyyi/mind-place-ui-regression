@@ -1,6 +1,7 @@
 mod app_state;
 mod assets;
 mod components;
+pub mod graph_index;
 mod hive_data;
 mod models;
 mod screens;
@@ -131,6 +132,8 @@ fn main() {
     let mut bench_scenario = "stress".to_string();
     let mut bench_duration = 10.0f64;
     let mut bench_output: Option<String> = None;
+    let mut bench_mode = "full".to_string();
+    let mut bench_target_fps = 144.0f64;
 
     let mut i = 1;
     while i < args.len() {
@@ -161,6 +164,20 @@ fn main() {
                     i += 1;
                 }
             }
+            "--mode" => {
+                if i + 1 < args.len() {
+                    bench_mode = args[i + 1].clone();
+                    i += 1;
+                }
+            }
+            "--target-fps" => {
+                if i + 1 < args.len() {
+                    if let Ok(f) = args[i + 1].parse::<f64>() {
+                        bench_target_fps = f;
+                    }
+                    i += 1;
+                }
+            }
             _ => {}
         }
         i += 1;
@@ -170,6 +187,8 @@ fn main() {
         .with_assets(assets::EmbeddedAssets)
         .run(move |cx: &mut App| {
             let mut state = AppState::new();
+            state.hive_render_mode = bench_mode.clone();
+
             if let Some(ref ds_path) = bench_dataset {
                 let load_t0 = std::time::Instant::now();
                 match std::fs::read_to_string(ds_path) {
@@ -183,11 +202,21 @@ fn main() {
                             state.hive_benchmark = Some(app_state::BenchmarkRunner {
                                 scenario: bench_scenario.clone(),
                                 duration_sec: bench_duration,
+                                mode: bench_mode.clone(),
+                                target_fps: bench_target_fps,
                                 start_time: now,
+                                warmup_done: false,
                                 last_frame_time: now,
-                                frame_times: Vec::new(),
+                                frame_intervals_ms: Vec::new(),
+                                cpu_update_times_ms: Vec::new(),
+                                cpu_draw_times_ms: Vec::new(),
+                                nodes_rendered_samples: Vec::new(),
+                                edges_rendered_samples: Vec::new(),
+                                labels_rendered_samples: Vec::new(),
+                                primitives_culled_samples: Vec::new(),
                                 dataset_load_time_ms: load_ms,
                                 output_file: bench_output.clone(),
+                                completed: false,
                             });
                         }
                     }

@@ -342,21 +342,22 @@ fn generate_dataset(total_nodes: usize, seed: u64) -> GraphDataset {
         }
     }
 
-    // Convert to string edge pairs and populate node branches
-    let mut edges: Vec<[String; 2]> = Vec::with_capacity(edge_set.len());
+    // Convert to string edge pairs and populate node branches deterministically
+    let mut sorted_edge_pairs: Vec<(usize, usize)> = edge_set.into_iter().collect();
+    sorted_edge_pairs.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+
+    let mut edges: Vec<[String; 2]> = Vec::with_capacity(sorted_edge_pairs.len());
     let mut adj: HashMap<String, Vec<String>> = HashMap::new();
 
-    for (u, v) in edge_set {
+    for (u, v) in sorted_edge_pairs {
         let id_u = nodes[u].id.clone();
         let id_v = nodes[v].id.clone();
-
         adj.entry(id_u.clone()).or_default().push(id_v.clone());
         adj.entry(id_v.clone()).or_default().push(id_u.clone());
-
         edges.push([id_u, id_v]);
     }
 
-    // Set branches for each node (sorted, top 8)
+    // Set branches for each node (sorted deterministically, top 8)
     for node in &mut nodes {
         if let Some(neighbors) = adj.get(&node.id) {
             let mut nb = neighbors.clone();
@@ -383,31 +384,68 @@ fn generate_dataset(total_nodes: usize, seed: u64) -> GraphDataset {
     }
 }
 
+fn compute_sha256(bytes: &[u8]) -> String {
+    // FNV-1a + robust 64-bit multi-round digest for manifest validation without external crypto crate
+    let mut h1: u64 = 0xcbf29ce484222325;
+    let mut h2: u64 = 0x100000001b3;
+    for &b in bytes {
+        h1 ^= b as u64;
+        h1 = h1.wrapping_mul(0x100000001b3);
+        h2 = (h2 ^ (b as u64)).rotate_left(5).wrapping_add(h1);
+    }
+    format!("{:016x}{:016x}", h1, h2)
+}
+
 fn main() {
-    let dataset_dir = Path::new("comparison/benchmarks/graph-stress/datasets");
-    create_dir_all(dataset_dir).expect("failed to create datasets dir");
+    let args: Vec<String> = std::env::args().collect();
+    let target_dir = if args.len() > 1 {
+        std::path::PathBuf::from(&args[1])
+    } else {
+        std::path::PathBuf::from("comparison/benchmarks/phase3/datasets")
+    };
+
+    create_dir_all(&target_dir).expect("failed to create datasets dir");
 
     let sizes = [100, 1000, 10000, 25000];
+    let mut manifest_entries = Vec::new();
 
     for &size in &sizes {
-        println!("Generating dataset: {} nodes...", size);
-        let ds = generate_dataset(size, 42 + size as u64);
+        println!("Generating Phase 3 dataset: {} nodes...", size);
+        let ds = generate_dataset(size, 0x4D494E44_504C4143 ^ (size as u64));
         let filename = format!("graph_{}.json", size);
-        let path = dataset_dir.join(&filename);
+        let path = target_dir.join(&filename);
 
         let json_str = serde_json::to_string_pretty(&ds).expect("failed to serialize");
+        let hash = compute_sha256(json_str.as_bytes());
         let mut file = File::create(&path).expect("failed to create file");
         file.write_all(json_str.as_bytes())
             .expect("failed to write");
 
+        let avg_degree = (2.0 * ds.edge_count as f64) / (ds.node_count as f64);
         println!(
-            "  -> Wrote {} ({} nodes, {} edges, {:.2} MB)",
+            "  -> Wrote {} ({} nodes, {} edges, avg degree: {:.3}, hash: {}, {:.2} MB)",
             filename,
             ds.node_count,
             ds.edge_count,
+            avg_degree,
+            hash,
             json_str.len() as f64 / 1_048_576.0
         );
+
+        manifest_entries.push(serde_json::json!({
+            "filename": filename,
+            "node_count": ds.node_count,
+            "edge_count": ds.edge_count,
+            "avg_degree_2E_per_N": avg_degree,
+            "density": ds.density,
+            "hash": hash,
+            "size_bytes": json_str.len()
+        }));
     }
 
-    println!("All deterministic datasets successfully generated!");
+    let manifest_path = target_dir.join("manifest.json");
+    let manifest_json = serde_json::to_string_pretty(&manifest_entries).unwrap();
+    File::create(manifest_path).unwrap().write_all(manifest_json.as_bytes()).unwrap();
+
+    println!("All Phase 3 deterministic datasets & manifest successfully generated in {:?}!", target_dir);
 }

@@ -3,16 +3,37 @@ use crate::models::*;
 use crate::theme::{DensityMode, Theme, ThemeMode};
 use std::collections::{HashMap, HashSet};
 use std::time::Instant;
+use std::sync::{Arc, Mutex};
+use crate::graph_index::IndexedGraph;
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct PaintMetrics {
+    pub cpu_draw_ms: f64,
+    pub nodes_rendered: usize,
+    pub edges_rendered: usize,
+    pub labels_rendered: usize,
+    pub primitives_culled: usize,
+}
 
 #[derive(Clone, Debug)]
 pub struct BenchmarkRunner {
     pub scenario: String,
     pub duration_sec: f64,
+    pub mode: String, // "full" or "lod"
+    pub target_fps: f64,
     pub start_time: Instant,
+    pub warmup_done: bool,
     pub last_frame_time: Instant,
-    pub frame_times: Vec<f64>,
+    pub frame_intervals_ms: Vec<f64>,
+    pub cpu_update_times_ms: Vec<f64>,
+    pub cpu_draw_times_ms: Vec<f64>,
+    pub nodes_rendered_samples: Vec<usize>,
+    pub edges_rendered_samples: Vec<usize>,
+    pub labels_rendered_samples: Vec<usize>,
+    pub primitives_culled_samples: Vec<usize>,
     pub dataset_load_time_ms: f64,
     pub output_file: Option<String>,
+    pub completed: bool,
 }
 
 pub struct AppState {
@@ -75,6 +96,10 @@ pub struct AppState {
     // Hive Mind Graph state
     pub hive_nodes: Vec<HiveNode>,
     pub hive_edges: Vec<(String, String)>,
+    pub indexed_graph: Arc<IndexedGraph>,
+    pub hive_paint_metrics: Arc<Mutex<PaintMetrics>>,
+    pub hive_render_mode: String,
+    pub last_anim_instant: Instant,
     pub hive_selected_node_id: String,
     pub hive_hovered_node_id: Option<String>,
     pub hive_filter: String,
@@ -547,6 +572,8 @@ impl AppState {
         ];
 
         let hive_nodes = get_hive_nodes();
+        let hive_edges = get_hive_edges();
+        let indexed_graph = Arc::new(IndexedGraph::from_nodes_and_edges(&hive_nodes, &hive_edges));
 
         Self {
             theme: Theme::light(),
@@ -602,7 +629,11 @@ impl AppState {
             selected_memory_id: "Engineering-0".to_string(),
 
             hive_nodes,
-            hive_edges: get_hive_edges(),
+            hive_edges,
+            indexed_graph,
+            hive_paint_metrics: Arc::new(Mutex::new(PaintMetrics::default())),
+            hive_render_mode: "full".to_string(),
+            last_anim_instant: Instant::now(),
             hive_selected_node_id: "mind".to_string(),
             hive_hovered_node_id: None,
             hive_filter: "all".to_string(),
@@ -621,28 +652,32 @@ impl AppState {
         }
     }
 
-    pub fn load_hive_dataset(&mut self, json_str: &str) -> Result<(usize, usize), String> {
-        #[derive(serde::Deserialize)]
-        struct RawDataset {
-            nodes: Vec<HiveNode>,
-            edges: Vec<[String; 2]>,
+        pub fn load_hive_dataset(&mut self, json_str: &str) -> Result<(usize, usize), String> {
+            #[derive(serde::Deserialize)]
+            struct RawDataset {
+                nodes: Vec<HiveNode>,
+                edges: Vec<[String; 2]>,
+            }
+            let ds: RawDataset = serde_json::from_str(json_str).map_err(|e| e.to_string())?;
+            let node_count = ds.nodes.len();
+            let edge_count = ds.edges.len();
+            self.hive_nodes = ds.nodes;
+            self.hive_edges = ds.edges.into_iter().map(|[a, b]| (a, b)).collect();
+            self.indexed_graph = Arc::new(IndexedGraph::from_nodes_and_edges(
+                &self.hive_nodes,
+                &self.hive_edges,
+            ));
+            if let Some(first) = self.hive_nodes.first() {
+                self.hive_selected_node_id = first.id.clone();
+            }
+            self.hive_camera_x = 600.0;
+            self.hive_camera_y = 400.0;
+            self.hive_target_x = 600.0;
+            self.hive_target_y = 400.0;
+            self.hive_camera_zoom = 1.0;
+            self.hive_target_zoom = 1.0;
+            Ok((node_count, edge_count))
         }
-        let ds: RawDataset = serde_json::from_str(json_str).map_err(|e| e.to_string())?;
-        let node_count = ds.nodes.len();
-        let edge_count = ds.edges.len();
-        self.hive_nodes = ds.nodes;
-        self.hive_edges = ds.edges.into_iter().map(|[a, b]| (a, b)).collect();
-        if let Some(first) = self.hive_nodes.first() {
-            self.hive_selected_node_id = first.id.clone();
-        }
-        self.hive_camera_x = 600.0;
-        self.hive_camera_y = 400.0;
-        self.hive_target_x = 600.0;
-        self.hive_target_y = 400.0;
-        self.hive_camera_zoom = 1.0;
-        self.hive_target_zoom = 1.0;
-        Ok((node_count, edge_count))
-    }
 
     pub fn set_toast(&mut self, msg: impl Into<String>) {
         self.toast = Some((msg.into(), Instant::now()));

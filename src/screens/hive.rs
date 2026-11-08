@@ -21,12 +21,28 @@ impl MindPlaceApp {
             let now = std::time::Instant::now();
             let dt = (now - bench.last_frame_time).as_secs_f64() * 1000.0;
             bench.last_frame_time = now;
-            bench.frame_times.push(dt);
 
             let elapsed = (now - bench.start_time).as_secs_f64() * 1000.0;
+
+            // Discard warmup period (first 500ms)
+            if elapsed >= 500.0 {
+                bench.warmup_done = true;
+                bench.frame_intervals_ms.push(dt);
+
+                // Fetch metrics recorded during previous paint pass
+                let m = *self.state.hive_paint_metrics.lock().unwrap();
+                bench.cpu_draw_times_ms.push(m.cpu_draw_ms);
+                bench.nodes_rendered_samples.push(m.nodes_rendered);
+                bench.edges_rendered_samples.push(m.edges_rendered);
+                bench.labels_rendered_samples.push(m.labels_rendered);
+                bench.primitives_culled_samples.push(m.primitives_culled);
+            }
+
             let node_count = self.state.hive_nodes.len();
             let node_scale = (node_count as f32 / 33.0).sqrt().max(1.0);
             let scenario = bench.scenario.clone();
+
+            let update_t0 = std::time::Instant::now();
 
             if scenario == "pan" || scenario == "stress" || scenario == "all" {
                 let angle = (elapsed / 1000.0) as f32 * 1.5;
@@ -77,39 +93,84 @@ impl MindPlaceApp {
                 }
             }
 
+            let update_ms = update_t0.elapsed().as_secs_f64() * 1000.0;
+            if bench.warmup_done {
+                bench.cpu_update_times_ms.push(update_ms);
+            }
+
             let total_ms = bench.duration_sec * 1000.0;
             if elapsed >= total_ms {
-                let mut sorted = bench.frame_times.clone();
-                if sorted.len() > 1 {
-                    sorted.remove(0); // discard warmup
-                }
-                sorted.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-                let count = sorted.len();
-                let sum_dt: f64 = sorted.iter().sum();
+                let mut sorted_cadence = bench.frame_intervals_ms.clone();
+                sorted_cadence.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+                let count = sorted_cadence.len();
+                let sum_dt: f64 = sorted_cadence.iter().sum();
                 let avg_fps = if count > 0 && sum_dt > 0.0 {
                     (count as f64) / (sum_dt / 1000.0)
                 } else {
                     0.0
                 };
-                let p50 = if count > 0 { sorted[(count as f64 * 0.50) as usize] } else { 0.0 };
-                let p95 = if count > 0 { sorted[((count as f64 * 0.95) as usize).min(count - 1)] } else { 0.0 };
-                let p99 = if count > 0 { sorted[((count as f64 * 0.99) as usize).min(count - 1)] } else { 0.0 };
+                let p50 = if count > 0 { sorted_cadence[(count as f64 * 0.50) as usize] } else { 0.0 };
+                let p95 = if count > 0 { sorted_cadence[((count as f64 * 0.95) as usize).min(count - 1)] } else { 0.0 };
+                let p99 = if count > 0 { sorted_cadence[((count as f64 * 0.99) as usize).min(count - 1)] } else { 0.0 };
+                let min_dt = sorted_cadence.first().copied().unwrap_or(0.0);
+                let max_dt = sorted_cadence.last().copied().unwrap_or(0.0);
                 let low_1pct_fps = if p99 > 0.0 { 1000.0 / p99 } else { 0.0 };
-                let dropped = sorted.iter().filter(|&&t| t > 20.0).count();
+
+                let missed_144hz = sorted_cadence.iter().filter(|&&t| t > 6.95).count();
+                let missed_60hz = sorted_cadence.iter().filter(|&&t| t > 16.67).count();
+                let hitches_33ms = sorted_cadence.iter().filter(|&&t| t > 33.33).count();
+
+                let mean_update = if !bench.cpu_update_times_ms.is_empty() {
+                    bench.cpu_update_times_ms.iter().sum::<f64>() / bench.cpu_update_times_ms.len() as f64
+                } else { 0.0 };
+
+                let mean_draw = if !bench.cpu_draw_times_ms.is_empty() {
+                    bench.cpu_draw_times_ms.iter().sum::<f64>() / bench.cpu_draw_times_ms.len() as f64
+                } else { 0.0 };
+
+                let avg_nodes = if !bench.nodes_rendered_samples.is_empty() {
+                    bench.nodes_rendered_samples.iter().sum::<usize>() as f64 / bench.nodes_rendered_samples.len() as f64
+                } else { 0.0 };
+
+                let avg_edges = if !bench.edges_rendered_samples.is_empty() {
+                    bench.edges_rendered_samples.iter().sum::<usize>() as f64 / bench.edges_rendered_samples.len() as f64
+                } else { 0.0 };
+
+                let avg_labels = if !bench.labels_rendered_samples.is_empty() {
+                    bench.labels_rendered_samples.iter().sum::<usize>() as f64 / bench.labels_rendered_samples.len() as f64
+                } else { 0.0 };
+
+                let avg_culled = if !bench.primitives_culled_samples.is_empty() {
+                    bench.primitives_culled_samples.iter().sum::<usize>() as f64 / bench.primitives_culled_samples.len() as f64
+                } else { 0.0 };
 
                 let json_res = serde_json::json!({
+                    "renderer": "GPUI",
+                    "mode": bench.mode,
                     "scenario": bench.scenario,
                     "node_count": node_count,
                     "edge_count": self.state.hive_edges.len(),
                     "duration_sec": bench.duration_sec,
+                    "target_fps": bench.target_fps,
                     "total_frames": count,
-                    "avg_fps": (avg_fps * 100.0).round() / 100.0,
+                    "avg_frame_cadence_fps": (avg_fps * 100.0).round() / 100.0,
+                    "p50_frame_time_ms": (p50 * 100.0).round() / 100.0,
+                    "p95_frame_time_ms": (p95 * 100.0).round() / 100.0,
+                    "p99_frame_time_ms": (p99 * 100.0).round() / 100.0,
+                    "min_frame_time_ms": (min_dt * 100.0).round() / 100.0,
+                    "max_frame_time_ms": (max_dt * 100.0).round() / 100.0,
                     "low_1pct_fps": (low_1pct_fps * 100.0).round() / 100.0,
-                    "p50_ms": (p50 * 100.0).round() / 100.0,
-                    "p95_ms": (p95 * 100.0).round() / 100.0,
-                    "p99_ms": (p99 * 100.0).round() / 100.0,
-                    "dropped_frames": dropped,
+                    "mean_cpu_update_ms": (mean_update * 1000.0).round() / 1000.0,
+                    "mean_cpu_draw_ms": (mean_draw * 1000.0).round() / 1000.0,
+                    "missed_144hz_frames": missed_144hz,
+                    "missed_60hz_frames": missed_60hz,
+                    "hitches_33ms_frames": hitches_33ms,
+                    "avg_nodes_rendered": (avg_nodes * 10.0).round() / 10.0,
+                    "avg_edges_rendered": (avg_edges * 10.0).round() / 10.0,
+                    "avg_labels_rendered": (avg_labels * 10.0).round() / 10.0,
+                    "avg_primitives_culled": (avg_culled * 10.0).round() / 10.0,
                     "dataset_load_time_ms": bench.dataset_load_time_ms,
+                    "display_presentation_fps": "NOT_MEASURED (asynchronous DXGI swapchain)"
                 });
 
                 println!("BENCHMARK_RESULT_JSON:{}", json_res);
@@ -122,13 +183,19 @@ impl MindPlaceApp {
             }
         }
 
-        // Update animation time and smooth camera position
-        let screen_t0 = std::time::Instant::now();
-        self.state.hive_anim_time += 16.0;
-        self.state.hive_camera_x += (self.state.hive_target_x - self.state.hive_camera_x) * 0.085;
-        self.state.hive_camera_y += (self.state.hive_target_y - self.state.hive_camera_y) * 0.085;
-        self.state.hive_camera_zoom +=
-            (self.state.hive_target_zoom - self.state.hive_camera_zoom) * 0.085;
+        // Time-based animation progression and smooth camera movement
+        let now = std::time::Instant::now();
+        let dt_sec = now
+            .duration_since(self.state.last_anim_instant)
+            .as_secs_f32()
+            .min(0.1);
+        self.state.last_anim_instant = now;
+        self.state.hive_anim_time += dt_sec * 1000.0;
+
+        let smooth_factor = 1.0 - (-9.5 * dt_sec).exp();
+        self.state.hive_camera_x += (self.state.hive_target_x - self.state.hive_camera_x) * smooth_factor;
+        self.state.hive_camera_y += (self.state.hive_target_y - self.state.hive_camera_y) * smooth_factor;
+        self.state.hive_camera_zoom += (self.state.hive_target_zoom - self.state.hive_camera_zoom) * smooth_factor;
 
         let zoom_pct = (self.state.hive_camera_zoom * 100.0).round() as i32;
         let node_count = self.state.hive_nodes.len();
@@ -194,9 +261,27 @@ impl MindPlaceApp {
                                             .child("DATASET:"),
                                     )
                                     .child(self.render_dataset_btn("33", "default", cx))
-                                    .child(self.render_dataset_btn("100", "comparison/benchmarks/graph-stress/datasets/graph_100.json", cx))
-                                    .child(self.render_dataset_btn("1k", "comparison/benchmarks/graph-stress/datasets/graph_1000.json", cx))
-                                    .child(self.render_dataset_btn("10k", "comparison/benchmarks/graph-stress/datasets/graph_10000.json", cx)),
+                                    .child(self.render_dataset_btn("100", "comparison/benchmarks/phase3/datasets/graph_100.json", cx))
+                                    .child(self.render_dataset_btn("1k", "comparison/benchmarks/phase3/datasets/graph_1000.json", cx))
+                                    .child(self.render_dataset_btn("10k", "comparison/benchmarks/phase3/datasets/graph_10000.json", cx))
+                                    .child(self.render_dataset_btn("25k", "comparison/benchmarks/phase3/datasets/graph_25000.json", cx)),
+                            )
+                            // Mode Switcher (Full vs LOD)
+                            .child(
+                                div()
+                                    .flex()
+                                    .gap(px(4.0))
+                                    .items_center()
+                                    .mr(px(8.0))
+                                    .child(
+                                        div()
+                                            .font_family(FONT_MONO)
+                                            .text_size(px(11.0))
+                                            .text_color(theme.text_muted)
+                                            .child("MODE:"),
+                                    )
+                                    .child(self.render_mode_btn("Full", "full", cx))
+                                    .child(self.render_mode_btn("LOD", "lod", cx)),
                             )
                             .child(
                                 div()
@@ -723,7 +808,8 @@ impl MindPlaceApp {
         let is_active = (path == "default" && self.state.hive_nodes.len() == 33)
             || (path.contains("100.") && self.state.hive_nodes.len() == 100)
             || (path.contains("1000.") && self.state.hive_nodes.len() == 1000)
-            || (path.contains("10000.") && self.state.hive_nodes.len() == 10000);
+            || (path.contains("10000.") && self.state.hive_nodes.len() == 10000)
+            || (path.contains("25000.") && self.state.hive_nodes.len() == 25000);
 
         div()
             .id(SharedString::from(format!("ds-btn-{}", label)))
@@ -768,6 +854,12 @@ impl MindPlaceApp {
                 if path == "default" {
                     this.state.hive_nodes = crate::hive_data::get_hive_nodes();
                     this.state.hive_edges = crate::hive_data::get_hive_edges();
+                    this.state.indexed_graph = std::sync::Arc::new(
+                        crate::graph_index::IndexedGraph::from_nodes_and_edges(
+                            &this.state.hive_nodes,
+                            &this.state.hive_edges,
+                        ),
+                    );
                     this.state.hive_selected_node_id = "mind".into();
                     this.state.hive_camera_x = 600.0;
                     this.state.hive_camera_y = 400.0;
@@ -791,6 +883,62 @@ impl MindPlaceApp {
                         }
                     }
                 }
+                cx.notify();
+            }))
+            .child(label)
+    }
+
+    fn render_mode_btn(
+        &mut self,
+        label: &'static str,
+        mode: &'static str,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let theme = self.state.theme;
+        let is_active = self.state.hive_render_mode == mode;
+
+        div()
+            .id(SharedString::from(format!("mode-btn-{}", label)))
+            .h(px(26.0))
+            .px(px(8.0))
+            .rounded(RADIUS_XS)
+            .border_1()
+            .border_color(if is_active {
+                theme.border_strong
+            } else {
+                theme.border_subtle
+            })
+            .bg(if is_active {
+                theme.bg_inverse
+            } else {
+                theme.bg_surface
+            })
+            .text_color(if is_active {
+                theme.text_inverse
+            } else {
+                theme.text_secondary
+            })
+            .font_family(FONT_MONO)
+            .text_size(px(11.0))
+            .font_weight(if is_active {
+                FontWeight::BOLD
+            } else {
+                FontWeight::MEDIUM
+            })
+            .flex()
+            .items_center()
+            .justify_center()
+            .cursor_pointer()
+            .hover(move |s| {
+                if !is_active {
+                    s.bg(theme.bg_hover).text_color(theme.text_primary)
+                } else {
+                    s
+                }
+            })
+            .on_click(cx.listener(move |this, _event, _window, cx| {
+                this.state.hive_render_mode = mode.to_string();
+                this.state.set_toast(format!("Graph mode switched to: {}", mode.to_uppercase()));
                 cx.notify();
             }))
             .child(label)
@@ -845,8 +993,7 @@ impl MindPlaceApp {
 
     fn render_hive_canvas_element(&mut self, _cx: &mut Context<Self>) -> impl IntoElement {
         let theme = self.state.theme;
-        let nodes = self.state.hive_nodes.clone();
-        let edges = self.state.hive_edges.clone();
+        let graph = self.state.indexed_graph.clone();
         let selected_id = self.state.hive_selected_node_id.clone();
         let hovered_id = self.state.hive_hovered_node_id.clone();
         let filter = self.state.hive_filter.clone();
@@ -856,21 +1003,8 @@ impl MindPlaceApp {
         let anim_time = self.state.hive_anim_time;
         let trace_active = self.state.hive_trace_active;
         let is_benchmark = self.state.hive_benchmark.is_some();
-
-        // Precompute fast O(1) index-based edge lookup
-        let mut id_to_idx: std::collections::HashMap<String, usize> =
-            std::collections::HashMap::with_capacity(nodes.len());
-        for (i, n) in nodes.iter().enumerate() {
-            id_to_idx.insert(n.id.clone(), i);
-        }
-
-        let edge_pairs: Vec<(usize, usize)> = edges
-            .iter()
-            .filter_map(|(a, b)| match (id_to_idx.get(a), id_to_idx.get(b)) {
-                (Some(&ia), Some(&ib)) => Some((ia, ib)),
-                _ => None,
-            })
-            .collect();
+        let is_lod_mode = self.state.hive_render_mode == "lod";
+        let metrics_ref = self.state.hive_paint_metrics.clone();
 
         canvas(
             move |bounds, _window, _cx| {
@@ -891,7 +1025,8 @@ impl MindPlaceApp {
                 let ox = f32::from(effective_bounds.origin.x);
                 let oy = f32::from(effective_bounds.origin.y);
 
-                let node_scale = ((nodes.len() as f32) / 33.0).sqrt().max(1.0);
+                let node_count = graph.nodes.len();
+                let node_scale = ((node_count as f32) / 33.0).sqrt().max(1.0);
                 let base_s = (w / (1220.0 * node_scale)).min(h / (820.0 * node_scale)) * 0.94;
                 let s = base_s * cam_zoom;
 
@@ -901,6 +1036,12 @@ impl MindPlaceApp {
                         oy + h / 2.0 + (y - cam_y) * s,
                     )
                 };
+
+                let paint_start = std::time::Instant::now();
+                let mut nodes_rendered: usize = 0;
+                let mut edges_rendered: usize = 0;
+                let mut labels_rendered: usize = 0;
+                let mut primitives_culled: usize = 0;
 
                 window.paint_layer(effective_bounds, |window| {
                     // 1. Paint Coordinate Grid Lines
@@ -944,107 +1085,147 @@ impl MindPlaceApp {
                         window.paint_quad(ring_quad);
                     }
 
-                    // 3. Edges & Data Pulses via direct index dereference
-                    let sel_node = id_to_idx.get(&selected_id).map(|&idx| &nodes[idx]);
-                    let branches: std::collections::HashSet<&str> = sel_node
-                        .map(|n| n.branches.iter().map(|b| b.as_str()).collect())
-                        .unwrap_or_default();
+                    // 3. Edges & Data Pulses via Persistent Indexed Graph & Lyon Bezier Stroke
+                    let selected_idx = graph.id_to_index.get(&selected_id).copied();
+                    let mut active_indices = std::collections::HashSet::new();
+                    if let Some(s_idx) = selected_idx {
+                        active_indices.insert(s_idx);
+                        if let Some(node) = graph.nodes.get(s_idx as usize) {
+                            for &b_idx in &node.branch_indices {
+                                active_indices.insert(b_idx);
+                            }
+                        }
+                    }
 
-                    let segs = if nodes.len() > 3000 { 1 } else if nodes.len() > 500 { 2 } else { 4 };
+                    // Graph-space viewport bounds for conservative AABB curve culling
+                    let margin_gx = 40.0 / s;
+                    let view_min_gx = cam_x - (w / 2.0) / s - margin_gx;
+                    let view_max_gx = cam_x + (w / 2.0) / s + margin_gx;
+                    let margin_gy = 40.0 / s;
+                    let view_min_gy = cam_y - (h / 2.0) / s - margin_gy;
+                    let view_max_gy = cam_y + (h / 2.0) / s + margin_gy;
 
-                    for &(ia, ib) in &edge_pairs {
-                        let a = &nodes[ia];
-                        let b = &nodes[ib];
-                        let a_vis = filter == "all" || a.layer == "all" || a.layer == filter;
-                        let b_vis = filter == "all" || b.layer == "all" || b.layer == filter;
-                        if !a_vis || !b_vis {
+                    let line_w_active = 1.5 * (0.75f32).max(s);
+                    let line_w_inactive = 0.85 * (0.75f32).max(s);
+
+                    let mut inactive_builder = PathBuilder::stroke(px(line_w_inactive)).dash_array(&[px(3.0), px(5.0)]);
+                    let mut inactive_count: usize = 0;
+
+                    let mut active_builder = PathBuilder::stroke(px(line_w_active));
+                    let mut active_count: usize = 0;
+
+                    const EDGE_CHUNK_SIZE: usize = 4000;
+
+                    for edge in &graph.edges {
+                        // Spatial AABB culling in graph coordinates
+                        if edge.max_x < view_min_gx || edge.min_x > view_max_gx || edge.max_y < view_min_gy || edge.min_y > view_max_gy {
+                            primitives_culled += 1;
                             continue;
                         }
 
-                        let (ax, ay) = transform(a.x, a.y);
-                        let (bx, by) = transform(b.x, b.y);
+                        let u = edge.source_idx as usize;
+                        let v = edge.target_idx as usize;
+                        let a = &graph.nodes[u];
+                        let b = &graph.nodes[v];
 
-                        let is_active = (a.id == selected_id || branches.contains(a.id.as_str()))
-                            && (b.id == selected_id || branches.contains(b.id.as_str()));
-
-                        let mx = (ax + bx) / 2.0 + (by - ay) * 0.06;
-                        let my = (ay + by) / 2.0 - (bx - ax) * 0.06;
-
-                        let edge_color = if is_active {
-                            theme.canvas_edge_active
-                        } else {
-                            theme.canvas_edge
-                        };
-                        let line_w = if is_active {
-                            1.5 * (0.75f32).max(s)
-                        } else {
-                            0.85 * (0.75f32).max(s)
-                        };
-
-                        if segs == 1 {
-                            let seg_bounds = Bounds {
-                                origin: point(px(ax.min(bx)), px(ay.min(by))),
-                                size: size(
-                                    px((bx - ax).abs().max(line_w)),
-                                    px((by - ay).abs().max(line_w)),
-                                ),
-                            };
-                            window.paint_quad(fill(seg_bounds, edge_color));
-                        } else {
-                            let mut prev_pt = (ax, ay);
-                            for step_i in 1..=segs {
-                                let t = (step_i as f32) / (segs as f32);
-                                let px_pos =
-                                    (1.0 - t) * (1.0 - t) * ax + 2.0 * (1.0 - t) * t * mx + t * t * bx;
-                                let py_pos =
-                                    (1.0 - t) * (1.0 - t) * ay + 2.0 * (1.0 - t) * t * my + t * t * by;
-
-                                let seg_bounds = Bounds {
-                                    origin: point(px(prev_pt.0.min(px_pos)), px(prev_pt.1.min(py_pos))),
-                                    size: size(
-                                        px((px_pos - prev_pt.0).abs().max(line_w)),
-                                        px((py_pos - prev_pt.1).abs().max(line_w)),
-                                    ),
-                                };
-                                window.paint_quad(fill(seg_bounds, edge_color));
-                                prev_pt = (px_pos, py_pos);
-                            }
+                        let a_vis = filter == "all" || a.layer == "all" || a.layer == filter;
+                        let b_vis = filter == "all" || b.layer == "all" || b.layer == filter;
+                        if !a_vis || !b_vis {
+                            primitives_culled += 1;
+                            continue;
                         }
 
-                        // Data Pulse dot if active & trace enabled
-                        if is_active && trace_active {
-                            let t = ((anim_time * 0.00018
-                                + (a.id.len() * b.id.len()) as f32 * 0.031)
-                                % 1.0
-                                + 1.0)
-                                % 1.0;
-                            let dot_x =
-                                (1.0 - t) * (1.0 - t) * ax + 2.0 * (1.0 - t) * t * mx + t * t * bx;
-                            let dot_y =
-                                (1.0 - t) * (1.0 - t) * ay + 2.0 * (1.0 - t) * t * my + t * t * by;
-                            let dot_bounds = Bounds {
-                                origin: point(px(dot_x - 2.5), px(dot_y - 2.5)),
-                                size: size(px(5.0), px(5.0)),
-                            };
-                            let mut dot_quad = fill(dot_bounds, theme.canvas_node_fill);
-                            dot_quad.corner_radii = px(2.5).into();
-                            window.paint_quad(dot_quad);
+                        edges_rendered += 1;
+
+                        let (ax, ay) = transform(a.x, a.y);
+                        let (bx, by) = transform(b.x, b.y);
+                        let (mx, my) = transform(edge.mx, edge.my);
+
+                        let is_active = active_indices.contains(&edge.source_idx) && active_indices.contains(&edge.target_idx);
+
+                        if is_active {
+                            active_builder.move_to(point(px(ax), px(ay)));
+                            active_builder.curve_to(point(px(bx), px(by)), point(px(mx), px(my)));
+                            active_count += 1;
+
+                            if active_count >= EDGE_CHUNK_SIZE {
+                                if let Ok(path) = active_builder.build() {
+                                    window.paint_path(path, theme.canvas_edge_active);
+                                }
+                                active_builder = PathBuilder::stroke(px(line_w_active));
+                                active_count = 0;
+                            }
+
+                            // Data Pulse dot if active & trace enabled
+                            if trace_active {
+                                let t = ((anim_time * 0.00018 + (a.id.len() * b.id.len()) as f32 * 0.031) % 1.0 + 1.0) % 1.0;
+                                let dot_x = (1.0 - t) * (1.0 - t) * ax + 2.0 * (1.0 - t) * t * mx + t * t * bx;
+                                let dot_y = (1.0 - t) * (1.0 - t) * ay + 2.0 * (1.0 - t) * t * my + t * t * by;
+                                let dot_bounds = Bounds {
+                                    origin: point(px(dot_x - 2.5), px(dot_y - 2.5)),
+                                    size: size(px(5.0), px(5.0)),
+                                };
+                                let mut dot_quad = fill(dot_bounds, theme.canvas_node_fill);
+                                dot_quad.corner_radii = px(2.5).into();
+                                window.paint_quad(dot_quad);
+                            }
+                        } else {
+                            inactive_builder.move_to(point(px(ax), px(ay)));
+                            inactive_builder.curve_to(point(px(bx), px(by)), point(px(mx), px(my)));
+                            inactive_count += 1;
+
+                            if inactive_count >= EDGE_CHUNK_SIZE {
+                                if let Ok(path) = inactive_builder.build() {
+                                    window.paint_path(path, theme.canvas_edge);
+                                }
+                                inactive_builder = PathBuilder::stroke(px(line_w_inactive)).dash_array(&[px(3.0), px(5.0)]);
+                                inactive_count = 0;
+                            }
+                        }
+                    }
+
+                    // Flush remaining batched edge paths
+                    if inactive_count > 0 {
+                        if let Ok(path) = inactive_builder.build() {
+                            window.paint_path(path, theme.canvas_edge);
+                        }
+                    }
+                    if active_count > 0 {
+                        if let Ok(path) = active_builder.build() {
+                            window.paint_path(path, theme.canvas_edge_active);
                         }
                     }
 
                     // 4. Paint Nodes
-                    for n in &nodes {
+                    for (idx, n) in graph.nodes.iter().enumerate() {
                         let is_vis = filter == "all" || n.layer == "all" || n.layer == filter;
                         if !is_vis {
+                            primitives_culled += 1;
                             continue;
                         }
 
                         let (nx, ny) = transform(n.x, n.y);
                         let is_sel = n.id == selected_id;
                         let is_hover = hovered_id.as_deref() == Some(n.id.as_str());
-                        let is_branch = branches.contains(n.id.as_str());
+                        let is_branch = if let Some(s_idx) = selected_idx {
+                            if let Some(s_node) = graph.nodes.get(s_idx as usize) {
+                                s_node.branch_indices.binary_search(&(idx as u32)).is_ok()
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
+                        };
 
                         let r = (n.r + if is_sel { 3.5 } else if is_hover { 2.0 } else { 0.0 }) * (0.68f32).max(s);
+
+                        // Viewport culling for node
+                        if nx + r < ox || nx - r > ox + w || ny + r < oy || ny - r > oy + h {
+                            primitives_culled += 1;
+                            continue;
+                        }
+
+                        nodes_rendered += 1;
 
                         // Outer focus ring if selected or hovered
                         if is_sel || is_hover {
@@ -1065,7 +1246,7 @@ impl MindPlaceApp {
                             origin: point(px(nx - r), px(ny - r)),
                             size: size(px(r * 2.0), px(r * 2.0)),
                         };
-                        let node_fill_color = if is_sel || n.id == "mind" {
+                        let node_fill_color = if is_sel || n.is_root {
                             theme.canvas_node_fill
                         } else if is_branch {
                             theme.canvas_node_secondary
@@ -1085,7 +1266,7 @@ impl MindPlaceApp {
                         window.paint_quad(nq);
 
                         // Inner core dot for non-selected hollow nodes
-                        if !is_sel && !is_branch && n.id != "mind" {
+                        if !is_sel && !is_branch && !n.is_root {
                             let core_r = (r * 0.35).max(2.0);
                             let core_b = Bounds {
                                 origin: point(px(nx - core_r), px(ny - core_r)),
@@ -1096,9 +1277,16 @@ impl MindPlaceApp {
                             window.paint_quad(cq);
                         }
 
-                        // Node Label: cull if outside viewport or too small to be legible
-                        let is_on_screen = nx >= ox - 60.0 && nx <= ox + w + 60.0 && ny >= oy - 60.0 && ny <= oy + h + 60.0;
-                        if is_on_screen && (n.r >= 14.0 || is_sel || is_hover || (cam_zoom > 2.0 && n.r >= 10.0)) {
+                        // Node Label per shared visual & LOD specification:
+                        let is_on_screen_for_label = nx >= ox - 80.0 && nx <= ox + w + 80.0 && ny >= oy - 80.0 && ny <= oy + h + 80.0;
+                        let render_label = is_on_screen_for_label && if is_lod_mode {
+                            is_sel || is_hover || (r >= 12.0) || (cam_zoom > 1.80 && r >= 8.0)
+                        } else {
+                            (n.r >= 9.0) || is_sel || is_hover || (cam_zoom > 1.35 && r >= 6.0)
+                        };
+
+                        if render_label {
+                            labels_rendered += 1;
                             let label_color = if is_sel {
                                 theme.canvas_label
                             } else {
@@ -1120,9 +1308,10 @@ impl MindPlaceApp {
                                 None,
                             );
                             let text_w = f32::from(shaped.width);
+                            let baseline_y = ny + r + 6.0 * (0.70f32).max(s);
                             shaped
                                 .paint(
-                                    point(px(nx - text_w / 2.0), px(ny + r + 4.0)),
+                                    point(px(nx - text_w / 2.0), px(baseline_y)),
                                     px(font_size + 3.0),
                                     window,
                                     cx,
@@ -1131,6 +1320,15 @@ impl MindPlaceApp {
                         }
                     }
                 });
+
+                let draw_duration_ms = paint_start.elapsed().as_secs_f64() * 1000.0;
+                if let Ok(mut m) = metrics_ref.lock() {
+                    m.nodes_rendered = nodes_rendered;
+                    m.edges_rendered = edges_rendered;
+                    m.labels_rendered = labels_rendered;
+                    m.primitives_culled = primitives_culled;
+                    m.cpu_draw_ms = draw_duration_ms;
+                }
 
                 // Keep animation running smoothly if active or during benchmark
                 if trace_active || is_benchmark {
