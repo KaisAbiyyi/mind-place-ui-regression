@@ -4315,25 +4315,678 @@ window.loadHiveDataset = function(ds) {
   return { nodes: nodes.length, edges: edges.length };
 };
 
-window.runGraphBenchmark = function(scenario, durationSec, onComplete) {
+// ==========================================
+// WebGL2 Hardware Accelerated Backend
+// ==========================================
+let gl = null;
+let glExt = null;
+let glNodeProg = null;
+let glEdgeProg = null;
+let glStaticQuadVbo = null;
+let glNodeInstVbo = null;
+let glStaticRibbonVbo = null;
+let glEdgeInstVbo = null;
+let glNodeVao = null;
+let glEdgeVao = null;
+
+function hexToRgba(hex, alpha = 1.0) {
+  if (!hex || hex === "transparent") return [0, 0, 0, 0];
+  hex = hex.replace("#", "").trim();
+  if (hex.length === 3) hex = hex.split("").map(c => c + c).join("");
+  const num = parseInt(hex, 16);
+  return [(num >> 16 & 255) / 255, (num >> 8 & 255) / 255, (num & 255) / 255, alpha];
+}
+
+function initHiveGL() {
+  if (gl || !hiveGlCanvas) return;
+  gl = hiveGlCanvas.getContext("webgl2", { alpha: false, antialias: true, depth: false, preserveDrawingBuffer: false });
+  if (!gl) {
+    console.warn("WebGL2 context not supported, falling back to Canvas 2D");
+    window.setRendererBackend("canvas");
+    return;
+  }
+  glExt = gl.getExtension('WEBGL_debug_renderer_info');
+  const rendererName = glExt ? gl.getParameter(glExt.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+  console.log("[MindPlace WebGL2] Initialized on GPU:", rendererName);
+
+  // 1. Shaders for Nodes (Instanced Point Quads)
+  const vsNode = `#version 300 es
+  layout(location = 0) in vec2 a_quad_pos;
+  layout(location = 1) in vec2 a_center;
+  layout(location = 2) in float a_radius;
+  layout(location = 3) in vec4 a_fill_color;
+  layout(location = 4) in vec4 a_stroke_color;
+  layout(location = 5) in float a_border_width;
+  layout(location = 6) in float a_core_dot;
+
+  uniform vec2 u_resolution;
+
+  out vec2 v_uv;
+  out vec4 v_fill;
+  out vec4 v_stroke;
+  out float v_border;
+  out float v_core;
+
+  void main() {
+      v_uv = a_quad_pos;
+      v_fill = a_fill_color;
+      v_stroke = a_stroke_color;
+      v_border = a_border_width;
+      v_core = a_core_dot;
+
+      vec2 screen_pos = a_center + a_quad_pos * a_radius;
+      vec2 clip_pos = (screen_pos / u_resolution) * 2.0 - 1.0;
+      gl_Position = vec4(clip_pos.x, -clip_pos.y, 0.0, 1.0);
+  }`;
+
+  const fsNode = `#version 300 es
+  precision mediump float;
+  in vec2 v_uv;
+  in vec4 v_fill;
+  in vec4 v_stroke;
+  in float v_border;
+  in float v_core;
+
+  out vec4 fragColor;
+
+  void main() {
+      float d = length(v_uv);
+      if (d > 1.0) discard;
+      float delta = fwidth(d);
+      float alpha = 1.0 - smoothstep(1.0 - delta, 1.0, d);
+
+      float border_in = 1.0 - v_border;
+      vec4 col = v_fill;
+      if (d > border_in) {
+          float edge = smoothstep(border_in - delta, border_in + delta, d);
+          col = mix(v_fill, v_stroke, edge);
+      } else if (v_core > 0.5 && d < 0.35) {
+          float core_edge = smoothstep(0.35 - delta, 0.35 + delta, d);
+          col = mix(vec4(0.153, 0.153, 0.165, 1.0), col, core_edge);
+      }
+      fragColor = vec4(col.rgb, col.a * alpha);
+  }`;
+
+  function compileShader(src, type) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(s));
+    }
+    return s;
+  }
+  function createProg(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, compileShader(vs, gl.VERTEX_SHADER));
+    gl.attachShader(p, compileShader(fs, gl.FRAGMENT_SHADER));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(p));
+    }
+    return p;
+  }
+
+  glNodeProg = createProg(vsNode, fsNode);
+
+  // 2. Shaders for Edges (GPU Bezier Ribbon Tessellation)
+  const vsEdge = `#version 300 es
+  layout(location = 0) in float a_t;
+  layout(location = 1) in float a_side;
+  layout(location = 2) in vec2 a_p0;
+  layout(location = 3) in vec2 a_p1;
+  layout(location = 4) in vec2 a_p2;
+  layout(location = 5) in vec4 a_color;
+  layout(location = 6) in float a_width;
+
+  uniform vec2 u_resolution;
+  out vec4 v_color;
+
+  void main() {
+      v_color = a_color;
+      float t = a_t;
+      vec2 pos = (1.0 - t) * (1.0 - t) * a_p0 + 2.0 * (1.0 - t) * t * a_p1 + t * t * a_p2;
+      vec2 tan = 2.0 * (1.0 - t) * (a_p1 - a_p0) + 2.0 * t * (a_p2 - a_p1);
+      float len = length(tan);
+      vec2 norm = len > 0.0001 ? vec2(-tan.y, tan.x) / len : vec2(0.0, 1.0);
+      vec2 screen_pos = pos + norm * (a_side * a_width * 0.5);
+      vec2 clip_pos = (screen_pos / u_resolution) * 2.0 - 1.0;
+      gl_Position = vec4(clip_pos.x, -clip_pos.y, 0.0, 1.0);
+  }`;
+
+  const fsEdge = `#version 300 es
+  precision mediump float;
+  in vec4 v_color;
+  out vec4 fragColor;
+  void main() {
+      fragColor = v_color;
+  }`;
+
+  glEdgeProg = createProg(vsEdge, fsEdge);
+
+  // Quad geometry for nodes
+  glNodeVao = gl.createVertexArray();
+  gl.bindVertexArray(glNodeVao);
+
+  glStaticQuadVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, glStaticQuadVbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1,
+     1, -1,
+    -1,  1,
+     1,  1,
+  ]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  glNodeInstVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, glNodeInstVbo);
+  const strideNode = 13 * 4;
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 2, gl.FLOAT, false, strideNode, 0); gl.vertexAttribDivisor(1, 1);
+  gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, strideNode, 2 * 4); gl.vertexAttribDivisor(2, 1);
+  gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 4, gl.FLOAT, false, strideNode, 3 * 4); gl.vertexAttribDivisor(3, 1);
+  gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 4, gl.FLOAT, false, strideNode, 7 * 4); gl.vertexAttribDivisor(4, 1);
+  gl.enableVertexAttribArray(5); gl.vertexAttribPointer(5, 1, gl.FLOAT, false, strideNode, 11 * 4); gl.vertexAttribDivisor(5, 1);
+  gl.enableVertexAttribArray(6); gl.vertexAttribPointer(6, 1, gl.FLOAT, false, strideNode, 12 * 4); gl.vertexAttribDivisor(6, 1);
+
+  // Ribbon geometry for edges: 8 segments
+  glEdgeVao = gl.createVertexArray();
+  gl.bindVertexArray(glEdgeVao);
+
+  const SEGMENTS = 8;
+  const ribbonVerts = [];
+  for (let i = 0; i <= SEGMENTS; i++) {
+    const t = i / SEGMENTS;
+    ribbonVerts.push(t, -1.0);
+    ribbonVerts.push(t,  1.0);
+  }
+  glStaticRibbonVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, glStaticRibbonVbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(ribbonVerts), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 1, gl.FLOAT, false, 8, 0);
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 1, gl.FLOAT, false, 8, 4);
+
+  glEdgeInstVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, glEdgeInstVbo);
+  const strideEdge = 11 * 4;
+  gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, strideEdge, 0); gl.vertexAttribDivisor(2, 1);
+  gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 2, gl.FLOAT, false, strideEdge, 2 * 4); gl.vertexAttribDivisor(3, 1);
+  gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 2, gl.FLOAT, false, strideEdge, 4 * 4); gl.vertexAttribDivisor(4, 1);
+  gl.enableVertexAttribArray(5); gl.vertexAttribPointer(5, 4, gl.FLOAT, false, strideEdge, 6 * 4); gl.vertexAttribDivisor(5, 1);
+  gl.enableVertexAttribArray(6); gl.vertexAttribPointer(6, 1, gl.FLOAT, false, strideEdge, 10 * 4); gl.vertexAttribDivisor(6, 1);
+
+  gl.bindVertexArray(null);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+}
+
+function drawHiveGL() {
+  if (activePage !== "hive") { frame = null; return; }
+  if (!W || !H || !gl) { frame = requestAnimationFrame(drawHiveGL); return; }
+
+  const paintStart = performance.now();
+  let nodesRendered = 0;
+  let edgesRendered = 0;
+  let labelsRendered = 0;
+  let primitivesCulled = 0;
+
+  time += 16;
+  camera.x += (camera.tx - camera.x) * 0.085;
+  camera.y += (camera.ty - camera.y) * 0.085;
+  camera.zoom += (camera.tz - camera.zoom) * 0.085;
+
+  const s = baseScale() * camera.zoom;
+  const bgCol = cssVar("--canvas-bg") || "#09090B";
+  const bgRgba = hexToRgba(bgCol, 1.0);
+  const gridCol = cssVar("--canvas-grid") || "#18181B";
+  const ringCol = cssVar("--canvas-ring") || "#27272A";
+  const edgeCol = cssVar("--canvas-edge") || "#3F3F46";
+  const edgeActiveCol = cssVar("--canvas-edge-active") || "#FFFFFF";
+  const nodeFill = cssVar("--canvas-node-fill") || "#FFFFFF";
+  const nodeSec = cssVar("--canvas-node-secondary") || "#27272A";
+  const nodeStroke = cssVar("--canvas-node-stroke") || "#52525B";
+  const labelCol = cssVar("--canvas-label") || "#FFFFFF";
+  const labelMuted = cssVar("--canvas-label-muted") || "#A1A1AA";
+
+  gl.viewport(0, 0, hiveGlCanvas.width, hiveGlCanvas.height);
+  gl.clearColor(bgRgba[0], bgRgba[1], bgRgba[2], 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  const marginGx = 40 / s;
+  const viewMinGx = camera.x - (W / 2) / s - marginGx;
+  const viewMaxGx = camera.x + (W / 2) / s + marginGx;
+  const marginGy = 40 / s;
+  const viewMinGy = camera.y - (H / 2) / s - marginGy;
+  const viewMaxGy = camera.y + (H / 2) / s + marginGy;
+
+  const activeSet = new Set([selected, ...(byId[selected]?.branches || [])]);
+
+  // 1. Pack and Render Edges
+  const edgeFloats = [];
+  const edgeWidthActive = 1.5 * Math.max(0.75, s);
+  const edgeWidthInactive = 0.85 * Math.max(0.75, s);
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    if (e._maxX !== undefined) {
+      if (e._maxX < viewMinGx || e._minX > viewMaxGx || e._maxY < viewMinGy || e._minY > viewMaxGy) {
+        primitivesCulled++;
+        continue;
+      }
+    }
+    const aid = e[0], bid = e[1];
+    const a = byId[aid], b = byId[bid];
+    if (!a || !b || !visible(a) || !visible(b)) {
+      primitivesCulled++;
+      continue;
+    }
+
+    edgesRendered++;
+    const p = transform(a), q = transform(b);
+    const isActive = activeSet.has(aid) && activeSet.has(bid);
+    const dim = !matches(a) || !matches(b);
+
+    const mx = W / 2 + (e._mx - camera.x) * s;
+    const my = H / 2 + (e._my - camera.y) * s;
+
+    const colHex = dim ? gridCol : (isActive ? edgeActiveCol : edgeCol);
+    const colRgba = hexToRgba(colHex, isActive ? 0.95 : 0.65);
+    const w = isActive ? edgeWidthActive : edgeWidthInactive;
+
+    edgeFloats.push(
+      p.x * dpr, p.y * dpr,
+      mx * dpr, my * dpr,
+      q.x * dpr, q.y * dpr,
+      colRgba[0], colRgba[1], colRgba[2], colRgba[3],
+      w * dpr
+    );
+  }
+
+  if (edgeFloats.length > 0) {
+    gl.useProgram(glEdgeProg);
+    gl.uniform2f(gl.getUniformLocation(glEdgeProg, "u_resolution"), hiveGlCanvas.width, hiveGlCanvas.height);
+    gl.bindVertexArray(glEdgeVao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, glEdgeInstVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(edgeFloats), gl.DYNAMIC_DRAW);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 18, edgeFloats.length / 11);
+  }
+
+  // 2. Pack and Render Nodes
+  const nodeFloats = [];
+  const textJobs = [];
+
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i];
+    if (!visible(n)) {
+      primitivesCulled++;
+      continue;
+    }
+    const p = transform(n);
+    const isSel = n.id === selected;
+    const isHover = n.id === hovered?.id;
+    const isBranch = byId[selected]?.branches?.includes(n.id);
+    const dim = !matches(n);
+
+    let r = (n.r + (isSel ? 3.5 : 0) + (isHover ? 2 : 0)) * Math.max(0.68, p.s);
+    if (dim) r *= 0.75;
+
+    if (p.x + r < 0 || p.x - r > W || p.y + r < 0 || p.y - r > H) {
+      primitivesCulled++;
+      continue;
+    }
+
+    nodesRendered++;
+
+    const fillHex = dim ? ringCol : (isSel || n.id === "mind" ? nodeFill : isBranch ? nodeSec : nodeStroke);
+    const strokeHex = dim ? ringCol : (isSel ? nodeStroke : nodeFill);
+    const fillRgba = hexToRgba(fillHex, 1.0);
+    const strokeRgba = hexToRgba(strokeHex, 1.0);
+    const borderWidth = (isSel ? 2.2 : 1.4) / (r * 2.0);
+    const hasCore = (!isSel && !isBranch && n.id !== "mind" && !dim) ? 1.0 : 0.0;
+
+    nodeFloats.push(
+      p.x * dpr, p.y * dpr,
+      r * dpr,
+      fillRgba[0], fillRgba[1], fillRgba[2], fillRgba[3],
+      strokeRgba[0], strokeRgba[1], strokeRgba[2], strokeRgba[3],
+      borderWidth,
+      hasCore
+    );
+
+    const isOnScreen = p.x >= -80 && p.x <= W + 80 && p.y >= -80 && p.y <= H + 80;
+    const renderLabel = isOnScreen && (currentMode === "lod" 
+      ? (isSel || isHover || r >= 12.0 || (camera.zoom > 1.80 && r >= 8.0))
+      : (n.r >= 9.0 || isSel || isHover || (camera.zoom > 1.35 && r >= 6.0)));
+
+    if (renderLabel) {
+      labelsRendered++;
+      textJobs.push({
+        title: n.title,
+        x: p.x,
+        y: p.y + r + 6 * Math.max(0.7, p.s),
+        isSel,
+        dim,
+        fontSize: Math.max(10, Math.min(13, 11 * p.s))
+      });
+    }
+  }
+
+  if (nodeFloats.length > 0) {
+    gl.useProgram(glNodeProg);
+    gl.uniform2f(gl.getUniformLocation(glNodeProg, "u_resolution"), hiveGlCanvas.width, hiveGlCanvas.height);
+    gl.bindVertexArray(glNodeVao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, glNodeInstVbo);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(nodeFloats), gl.DYNAMIC_DRAW);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nodeFloats.length / 13);
+  }
+
+  // 3. Render Overlaid 2D Labels
+  if (tctx) {
+    tctx.clearRect(0, 0, W, H);
+    tctx.textAlign = "center";
+    tctx.textBaseline = "top";
+    for (let i = 0; i < textJobs.length; i++) {
+      const job = textJobs[i];
+      tctx.font = `${job.isSel ? 700 : 500} ${job.fontSize}px Inter, system-ui, sans-serif`;
+      tctx.fillStyle = job.dim ? ringCol : (job.isSel ? labelCol : labelMuted);
+      tctx.fillText(job.title, job.x, job.y);
+    }
+  }
+
+  const drawMs = performance.now() - paintStart;
+  latestPaintMetrics = {
+    cpu_draw_ms: drawMs,
+    nodes_rendered: nodesRendered,
+    edges_rendered: edgesRendered,
+    labels_rendered: labelsRendered,
+    primitives_culled: primitivesCulled
+  };
+
+  if (!isBenchmarking) {
+    frame = requestAnimationFrame(currentRenderer === "webgl2" ? drawHiveGL : drawHive);
+  }
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function baseScale() {
+  return (Math.min(W / 1220, H / 820) * 0.94) / (_hiveNodeScale || 1.0);
+}
+
+function transform(n) {
+  const s = baseScale() * camera.zoom;
+  return { x: W / 2 + (n.x - camera.x) * s, y: H / 2 + (n.y - camera.y) * s, s };
+}
+
+function visible(n) {
+  return filter === "all" || n.layer === "all" || n.layer === filter;
+}
+
+function matches(n) {
+  return !query || (`${n.title} ${n.sub} ${n.type}`).toLowerCase().includes(query);
+}
+
+function resizeHive() {
+  const r = hiveMain.getBoundingClientRect();
+  W = r.width;
+  H = r.height;
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  if (hiveCanvas) {
+    hiveCanvas.width = Math.max(1, Math.round(W * dpr));
+    hiveCanvas.height = Math.max(1, Math.round(H * dpr));
+    hiveCanvas.style.width = W + "px";
+    hiveCanvas.style.height = H + "px";
+    hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  if (hiveGlCanvas) {
+    hiveGlCanvas.width = Math.max(1, Math.round(W * dpr));
+    hiveGlCanvas.height = Math.max(1, Math.round(H * dpr));
+    hiveGlCanvas.style.width = W + "px";
+    hiveGlCanvas.style.height = H + "px";
+    if (gl) gl.viewport(0, 0, hiveGlCanvas.width, hiveGlCanvas.height);
+  }
+
+  if (hiveTextCanvas) {
+    hiveTextCanvas.width = Math.max(1, Math.round(W * dpr));
+    hiveTextCanvas.height = Math.max(1, Math.round(H * dpr));
+    hiveTextCanvas.style.width = W + "px";
+    hiveTextCanvas.style.height = H + "px";
+    if (tctx) tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+}
+window.addEventListener("resize", () => { if (activePage === "hive") resizeHive(); });
+
+function drawHive() {
+  if (activePage !== "hive") { frame = null; return; }
+  if (!W || !H) { frame = requestAnimationFrame(drawHive); return; }
+
+  const paintStart = performance.now();
+  let nodesRendered = 0;
+  let edgesRendered = 0;
+  let labelsRendered = 0;
+  let primitivesCulled = 0;
+
+  time += 16;
+  camera.x += (camera.tx - camera.x) * 0.085;
+  camera.y += (camera.ty - camera.y) * 0.085;
+  camera.zoom += (camera.tz - camera.zoom) * 0.085;
+
+  const bgCol = cssVar("--canvas-bg");
+  const gridCol = cssVar("--canvas-grid");
+  const ringCol = cssVar("--canvas-ring");
+  const edgeCol = cssVar("--canvas-edge");
+  const edgeActiveCol = cssVar("--canvas-edge-active");
+  const nodeFill = cssVar("--canvas-node-fill");
+  const nodeSec = cssVar("--canvas-node-secondary");
+  const nodeStroke = cssVar("--canvas-node-stroke");
+  const labelCol = cssVar("--canvas-label");
+  const labelMuted = cssVar("--canvas-label-muted");
+
+  // 1. Background & Subtle Architectural Coordinate Grid
+  hctx.clearRect(0, 0, W, H);
+  hctx.fillStyle = bgCol;
+  hctx.fillRect(0, 0, W, H);
+
+  const step = 36 * Math.max(0.65, Math.min(1.5, camera.zoom));
+  const offX = ((W / 2 - camera.x * baseScale() * camera.zoom) % step + step) % step;
+  const offY = ((H / 2 - camera.y * baseScale() * camera.zoom) % step + step) % step;
+  hctx.strokeStyle = gridCol;
+  hctx.lineWidth = 1;
+  hctx.beginPath();
+  for (let x = offX; x < W; x += step) { hctx.moveTo(x, 0); hctx.lineTo(x, H); }
+  for (let y = offY; y < H; y += step) { hctx.moveTo(0, y); hctx.lineTo(W, y); }
+  hctx.stroke();
+
+  // Concentric Orbital Rings
+  const s = baseScale() * camera.zoom;
+  hctx.save();
+  hctx.translate(W / 2 - camera.x * s, H / 2 - camera.y * s);
+  hctx.scale(s, s);
+  for (let i = 0; i < 4; i++) {
+    hctx.beginPath();
+    hctx.ellipse(600, 400, 210 + i * 110, 130 + i * 70, -0.14, 0, Math.PI * 2);
+    hctx.strokeStyle = ringCol;
+    hctx.lineWidth = 1 / s;
+    hctx.setLineDash([4 / s, 8 / s]);
+    hctx.stroke();
+  }
+  hctx.restore();
+
+  // 2. Edges & Data Pulses with Graph-space AABB Culling
+  const marginGx = 40 / s;
+  const viewMinGx = camera.x - (W / 2) / s - marginGx;
+  const viewMaxGx = camera.x + (W / 2) / s + marginGx;
+  const marginGy = 40 / s;
+  const viewMinGy = camera.y - (H / 2) / s - marginGy;
+  const viewMaxGy = camera.y + (H / 2) / s + marginGy;
+
+  const activeSet = new Set([selected, ...(byId[selected]?.branches || [])]);
+
+  for (let i = 0; i < edges.length; i++) {
+    const e = edges[i];
+    if (e._maxX !== undefined) {
+      if (e._maxX < viewMinGx || e._minX > viewMaxGx || e._maxY < viewMinGy || e._minY > viewMaxGy) {
+        primitivesCulled++;
+        continue;
+      }
+    }
+    const aid = e[0], bid = e[1];
+    const a = byId[aid], b = byId[bid];
+    if (!a || !b || !visible(a) || !visible(b)) {
+      primitivesCulled++;
+      continue;
+    }
+
+    edgesRendered++;
+    const p = transform(a), q = transform(b);
+    const isActive = activeSet.has(aid) && activeSet.has(bid);
+    const dim = !matches(a) || !matches(b);
+
+    const mx = W / 2 + (e._mx - camera.x) * s;
+    const my = H / 2 + (e._my - camera.y) * s;
+
+    hctx.beginPath();
+    hctx.moveTo(p.x, p.y);
+    hctx.quadraticCurveTo(mx, my, q.x, q.y);
+    hctx.strokeStyle = dim ? gridCol : (isActive ? edgeActiveCol : edgeCol);
+    hctx.lineWidth = (isActive ? 1.5 : 0.85) * Math.max(0.75, p.s);
+    hctx.setLineDash(isActive ? [] : [3, 5]);
+    hctx.stroke();
+    hctx.setLineDash([]);
+
+    if (isActive && trace && !dim) {
+      const t = ((time * 0.00018 + (aid.length * bid.length * 0.031)) % 1 + 1) % 1;
+      const px = (1 - t) * (1 - t) * p.x + 2 * (1 - t) * t * mx + t * t * q.x;
+      const py = (1 - t) * (1 - t) * p.y + 2 * (1 - t) * t * my + t * t * q.y;
+      hctx.beginPath();
+      hctx.arc(px, py, 2.2, 0, Math.PI * 2);
+      hctx.fillStyle = nodeFill;
+      hctx.fill();
+    }
+  }
+
+  // 3. Nodes with Viewport Culling & Shared Visual Contract
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i];
+    if (!visible(n)) {
+      primitivesCulled++;
+      continue;
+    }
+    const p = transform(n);
+    const isSel = n.id === selected;
+    const isHover = n.id === hovered?.id;
+    const isBranch = byId[selected]?.branches?.includes(n.id);
+    const dim = !matches(n);
+
+    let r = (n.r + (isSel ? 3.5 : 0) + (isHover ? 2 : 0)) * Math.max(0.68, p.s);
+    if (dim) r *= 0.75;
+
+    if (p.x + r < 0 || p.x - r > W || p.y + r < 0 || p.y - r > H) {
+      primitivesCulled++;
+      continue;
+    }
+
+    nodesRendered++;
+
+    if (isSel || isHover) {
+      hctx.beginPath();
+      hctx.arc(p.x, p.y, r + 6 * Math.max(0.7, p.s), 0, Math.PI * 2);
+      hctx.strokeStyle = edgeActiveCol;
+      hctx.lineWidth = 1.2;
+      hctx.setLineDash([3, 3]);
+      hctx.stroke();
+      hctx.setLineDash([]);
+    }
+
+    hctx.beginPath();
+    hctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    hctx.fillStyle = dim ? ringCol : (isSel || n.id === "mind" ? nodeFill : isBranch ? nodeSec : nodeStroke);
+    hctx.fill();
+    hctx.lineWidth = isSel ? 2.2 : 1.4;
+    hctx.strokeStyle = dim ? ringCol : (isSel ? nodeStroke : nodeFill);
+    hctx.stroke();
+
+    if (!isSel && !isBranch && n.id !== "mind" && !dim) {
+      hctx.beginPath();
+      hctx.arc(p.x, p.y, Math.max(2, r * 0.35), 0, Math.PI * 2);
+      hctx.fillStyle = nodeSec;
+      hctx.fill();
+    }
+
+    const isOnScreen = p.x >= -80 && p.x <= W + 80 && p.y >= -80 && p.y <= H + 80;
+    const renderLabel = isOnScreen && (currentMode === "lod" 
+      ? (isSel || isHover || r >= 12.0 || (camera.zoom > 1.80 && r >= 8.0))
+      : (n.r >= 9.0 || isSel || isHover || (camera.zoom > 1.35 && r >= 6.0)));
+
+    if (renderLabel) {
+      labelsRendered++;
+      const fontSize = Math.max(10, Math.min(13, 11 * p.s));
+      hctx.font = `${isSel ? 700 : 500} ${fontSize}px Inter, system-ui, sans-serif`;
+      hctx.textAlign = "center";
+      hctx.textBaseline = "top";
+      hctx.fillStyle = dim ? ringCol : (isSel ? labelCol : labelMuted);
+      hctx.fillText(n.title, p.x, p.y + r + 6 * Math.max(0.7, p.s));
+    }
+  }
+
+  const drawMs = performance.now() - paintStart;
+  latestPaintMetrics = {
+    cpu_draw_ms: drawMs,
+    nodes_rendered: nodesRendered,
+    edges_rendered: edgesRendered,
+    labels_rendered: labelsRendered,
+    primitives_culled: primitivesCulled
+  };
+
+  if (!isBenchmarking) {
+    frame = requestAnimationFrame(currentRenderer === "webgl2" ? drawHiveGL : drawHive);
+  }
+}
+
+function startHive() {
+  resizeHive();
+  if (currentRenderer === "webgl2") initHiveGL();
+  if (!frame) frame = requestAnimationFrame(currentRenderer === "webgl2" ? drawHiveGL : drawHive);
+}
+
+window.runGraphBenchmark = function(scenario, durationSec, targetFps, onComplete) {
+  if (typeof targetFps === "function") {
+    onComplete = targetFps;
+    targetFps = 60.0;
+  }
+  targetFps = targetFps || 60.0;
+  isBenchmarking = true;
   go("hive");
-  startHive();
+  resizeHive();
+  if (currentRenderer === "webgl2") initHiveGL();
   
   const initialT = performance.now();
   let lastFrameTime = performance.now();
-  const frameTimes = [];
+  const frameIntervals = [];
+  const updateTimes = [];
+  const drawTimes = [];
+  const nodesSamples = [];
+  const edgesSamples = [];
+  const labelsSamples = [];
+  const culledSamples = [];
+
   const totalMs = durationSec * 1000;
   let isRunning = true;
-  
+
   function benchLoop(now) {
     try {
       if (!isRunning) return;
       const dt = now - lastFrameTime;
       lastFrameTime = now;
-      frameTimes.push(dt);
-      
       const elapsed = now - initialT;
-      
+
+      // 1. Time-based Scenario & Camera Update
+      const t0_up = performance.now();
+
       if (scenario === "pan" || scenario === "stress" || scenario === "all") {
         const angle = (elapsed / 1000) * 1.5;
         const dist = 320 * (_hiveNodeScale || 1);
@@ -4366,36 +5019,91 @@ window.runGraphBenchmark = function(scenario, durationSec, onComplete) {
         else if (phase === 2) { camera.tx = 300; camera.ty = 600; camera.tz = 1.8; }
         else { camera.tx = 600; camera.ty = 400; camera.tz = 0.8; }
       }
-      
+
+      // Smooth camera interpolation
+      camera.x += (camera.tx - camera.x) * 0.12;
+      camera.y += (camera.ty - camera.y) * 0.12;
+      camera.zoom += (camera.tz - camera.zoom) * 0.12;
+
+      const updateMs = performance.now() - t0_up;
+
+      // 2. Render Pass
+      const t0_draw = performance.now();
+      if (currentRenderer === "webgl2") {
+        drawHiveGL();
+      } else {
+        drawHive();
+      }
+      const drawMs = performance.now() - t0_draw;
+
+      // Discard initial 500ms warmup
+      if (elapsed >= 500) {
+        frameIntervals.push(dt);
+        updateTimes.push(updateMs);
+        drawTimes.push(latestPaintMetrics.cpu_draw_ms || drawMs);
+        nodesSamples.push(latestPaintMetrics.nodes_rendered);
+        edgesSamples.push(latestPaintMetrics.edges_rendered);
+        labelsSamples.push(latestPaintMetrics.labels_rendered);
+        culledSamples.push(latestPaintMetrics.primitives_culled);
+      }
+
       if (elapsed < totalMs) {
         requestAnimationFrame(benchLoop);
       } else {
         isRunning = false;
-        frameTimes.shift(); // discard warmup jitter
-        const sorted = [...frameTimes].sort((a, b) => a - b);
+        isBenchmarking = false;
+        const sorted = [...frameIntervals].sort((a, b) => a - b);
         const count = sorted.length;
         const sumDt = sorted.reduce((a, b) => a + b, 0);
-        const avgFps = count > 0 ? (count / (sumDt / 1000)) : 0;
+        const avgFps = count > 0 && sumDt > 0 ? (count / (sumDt / 1000)) : 0;
         const p50 = sorted[Math.floor(count * 0.5)] || 0;
-        const p95 = sorted[Math.floor(count * 0.95)] || 0;
-        const p99 = sorted[Math.floor(count * 0.99)] || 0;
+        const p95 = sorted[Math.min(count - 1, Math.floor(count * 0.95))] || 0;
+        const p99 = sorted[Math.min(count - 1, Math.floor(count * 0.99))] || 0;
+        const minDt = sorted[0] || 0;
+        const maxDt = sorted[count - 1] || 0;
         const low1PctFps = p99 > 0 ? (1000 / p99) : 0;
-        const dropped = sorted.filter(t => t > 20.0).length;
-        
+
+        const missed144 = sorted.filter(t => t > 6.95).length;
+        const missed60 = sorted.filter(t => t > 16.67).length;
+        const hitches33 = sorted.filter(t => t > 33.33).length;
+
+        const meanUpdate = updateTimes.length > 0 ? (updateTimes.reduce((a, b) => a + b, 0) / updateTimes.length) : 0;
+        const meanDraw = drawTimes.length > 0 ? (drawTimes.reduce((a, b) => a + b, 0) / drawTimes.length) : 0;
+
+        const avgNodes = nodesSamples.length > 0 ? (nodesSamples.reduce((a, b) => a + b, 0) / nodesSamples.length) : 0;
+        const avgEdges = edgesSamples.length > 0 ? (edgesSamples.reduce((a, b) => a + b, 0) / edgesSamples.length) : 0;
+        const avgLabels = labelsSamples.length > 0 ? (labelsSamples.reduce((a, b) => a + b, 0) / labelsSamples.length) : 0;
+        const avgCulled = culledSamples.length > 0 ? (culledSamples.reduce((a, b) => a + b, 0) / culledSamples.length) : 0;
+
         const res = {
+          renderer: currentRenderer === "webgl2" ? "WebView2-WebGL2" : "WebView2-Canvas2D",
+          mode: currentMode,
           scenario: scenario,
           node_count: nodes.length,
           edge_count: edges.length,
           duration_sec: durationSec,
+          target_fps: targetFps,
           total_frames: count,
-          avg_fps: Math.round(avgFps * 100) / 100,
+          avg_frame_cadence_fps: Math.round(avgFps * 100) / 100,
+          p50_frame_time_ms: Math.round(p50 * 100) / 100,
+          p95_frame_time_ms: Math.round(p95 * 100) / 100,
+          p99_frame_time_ms: Math.round(p99 * 100) / 100,
+          min_frame_time_ms: Math.round(minDt * 100) / 100,
+          max_frame_time_ms: Math.round(maxDt * 100) / 100,
           low_1pct_fps: Math.round(low1PctFps * 100) / 100,
-          p50_ms: Math.round(p50 * 100) / 100,
-          p95_ms: Math.round(p95 * 100) / 100,
-          p99_ms: Math.round(p99 * 100) / 100,
-          dropped_frames: dropped
+          mean_cpu_update_ms: Math.round(meanUpdate * 1000) / 1000,
+          mean_cpu_draw_ms: Math.round(meanDraw * 1000) / 1000,
+          missed_144hz_frames: missed144,
+          missed_60hz_frames: missed60,
+          hitches_33ms_frames: hitches33,
+          avg_nodes_rendered: Math.round(avgNodes * 10) / 10,
+          avg_edges_rendered: Math.round(avgEdges * 10) / 10,
+          avg_labels_rendered: Math.round(avgLabels * 10) / 10,
+          avg_primitives_culled: Math.round(avgCulled * 10) / 10,
+          dataset_load_time_ms: 0,
+          display_presentation_fps: "NOT_MEASURED (asynchronous DXGI presentation pipeline)"
         };
-        
+
         if (onComplete) {
           onComplete(res);
         } else {
@@ -4408,176 +5116,6 @@ window.runGraphBenchmark = function(scenario, durationSec, onComplete) {
   }
   requestAnimationFrame(benchLoop);
 };
-
-function cssVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function baseScale() {
-  return (Math.min(W / 1220, H / 820) * 0.94) / (_hiveNodeScale || 1.0);
-}
-
-function transform(n) {
-  const s = baseScale() * camera.zoom;
-  return { x: W / 2 + (n.x - camera.x) * s, y: H / 2 + (n.y - camera.y) * s, s };
-}
-
-function visible(n) {
-  return filter === "all" || n.layer === "all" || n.layer === filter;
-}
-
-function matches(n) {
-  return !query || (`${n.title} ${n.sub} ${n.type}`).toLowerCase().includes(query);
-}
-
-function resizeHive() {
-  const r = hiveMain.getBoundingClientRect();
-  W = r.width;
-  H = r.height;
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
-  hiveCanvas.width = Math.max(1, Math.round(W * dpr));
-  hiveCanvas.height = Math.max(1, Math.round(H * dpr));
-  hiveCanvas.style.width = W + "px";
-  hiveCanvas.style.height = H + "px";
-  hctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-window.addEventListener("resize", () => { if (activePage === "hive") resizeHive(); });
-
-function drawHive() {
-  if (activePage !== "hive") { frame = null; return; }
-  if (!W || !H) { frame = requestAnimationFrame(drawHive); return; }
-
-  time += 16;
-  camera.x += (camera.tx - camera.x) * 0.085;
-  camera.y += (camera.ty - camera.y) * 0.085;
-  camera.zoom += (camera.tz - camera.zoom) * 0.085;
-
-  const bgCol = cssVar("--canvas-bg");
-  const gridCol = cssVar("--canvas-grid");
-  const ringCol = cssVar("--canvas-ring");
-  const edgeCol = cssVar("--canvas-edge");
-  const edgeActiveCol = cssVar("--canvas-edge-active");
-  const nodeFill = cssVar("--canvas-node-fill");
-  const nodeSec = cssVar("--canvas-node-secondary");
-  const nodeStroke = cssVar("--canvas-node-stroke");
-  const labelCol = cssVar("--canvas-label");
-  const labelMuted = cssVar("--canvas-label-muted");
-
-  // 1. Background & Subtle Architectural Coordinate Grid
-  hctx.clearRect(0, 0, W, H);
-  hctx.fillStyle = bgCol;
-  hctx.fillRect(0, 0, W, H);
-
-  const step = 36 * Math.max(0.65, Math.min(1.5, camera.zoom));
-  const offX = (W / 2 - camera.x * baseScale() * camera.zoom) % step;
-  const offY = (H / 2 - camera.y * baseScale() * camera.zoom) % step;
-  hctx.strokeStyle = gridCol;
-  hctx.lineWidth = 1;
-  hctx.beginPath();
-  for (let x = offX; x < W; x += step) { hctx.moveTo(x, 0); hctx.lineTo(x, H); }
-  for (let y = offY; y < H; y += step) { hctx.moveTo(0, y); hctx.lineTo(W, y); }
-  hctx.stroke();
-
-  // Concentric Orbital Rings
-  const s = baseScale() * camera.zoom;
-  hctx.save();
-  hctx.translate(W / 2 - camera.x * s, H / 2 - camera.y * s);
-  hctx.scale(s, s);
-  for (let i = 0; i < 4; i++) {
-    hctx.beginPath();
-    hctx.ellipse(600, 400, 210 + i * 110, 130 + i * 70, -0.14, 0, Math.PI * 2);
-    hctx.strokeStyle = ringCol;
-    hctx.lineWidth = 1 / s;
-    hctx.setLineDash([4 / s, 8 / s]);
-    hctx.stroke();
-  }
-  hctx.restore();
-
-  // 2. Edges & Data Pulses
-  const activeSet = new Set([selected, ...(byId[selected]?.branches || [])]);
-  for (const [aid, bid] of edges) {
-    const a = byId[aid], b = byId[bid];
-    if (!a || !b || !visible(a) || !visible(b)) continue;
-    const p = transform(a), q = transform(b);
-    const isActive = activeSet.has(aid) && activeSet.has(bid);
-    const dim = !matches(a) || !matches(b);
-
-    const mx = (p.x + q.x) / 2 + (q.y - p.y) * 0.06;
-    const my = (p.y + q.y) / 2 - (q.x - p.x) * 0.06;
-
-    hctx.beginPath();
-    hctx.moveTo(p.x, p.y);
-    hctx.quadraticCurveTo(mx, my, q.x, q.y);
-    hctx.strokeStyle = dim ? gridCol : (isActive ? edgeActiveCol : edgeCol);
-    hctx.lineWidth = (isActive ? 1.5 : 0.85) * Math.max(0.75, p.s);
-    hctx.setLineDash(isActive ? [] : [3, 5]);
-    hctx.stroke();
-    hctx.setLineDash([]);
-
-    if (isActive && trace && !dim) {
-      const t = (time * 0.00018 + (aid.length * bid.length * 0.031)) % 1;
-      const px = (1 - t) * (1 - t) * p.x + 2 * (1 - t) * t * mx + t * t * q.x;
-      const py = (1 - t) * (1 - t) * p.y + 2 * (1 - t) * t * my + t * t * q.y;
-      hctx.beginPath();
-      hctx.arc(px, py, 2.2, 0, Math.PI * 2);
-      hctx.fillStyle = nodeFill;
-      hctx.fill();
-    }
-  }
-
-  // 3. Nodes (Pure Monochrome Hierarchy)
-  for (const n of nodes) {
-    const p = transform(n);
-    const isSel = n.id === selected;
-    const isHover = n.id === hovered?.id;
-    const isBranch = byId[selected]?.branches?.includes(n.id);
-    const dim = !visible(n) || !matches(n);
-
-    let r = (n.r + (isSel ? 3.5 : 0) + (isHover ? 2 : 0)) * Math.max(0.68, p.s);
-    if (dim) r *= 0.75;
-
-    if (isSel || isHover) {
-      hctx.beginPath();
-      hctx.arc(p.x, p.y, r + 6 * Math.max(0.7, p.s), 0, Math.PI * 2);
-      hctx.strokeStyle = edgeActiveCol;
-      hctx.lineWidth = 1.2;
-      hctx.setLineDash([3, 3]);
-      hctx.stroke();
-      hctx.setLineDash([]);
-    }
-
-    hctx.beginPath();
-    hctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    hctx.fillStyle = dim ? ringCol : (isSel || n.id === "mind" ? nodeFill : isBranch ? nodeSec : nodeStroke);
-    hctx.fill();
-    hctx.lineWidth = isSel ? 2.2 : 1.4;
-    hctx.strokeStyle = dim ? ringCol : (isSel ? nodeStroke : nodeFill);
-    hctx.stroke();
-
-    // Inner core dot for non-selected hollow nodes
-    if (!isSel && !isBranch && n.id !== "mind" && !dim) {
-      hctx.beginPath();
-      hctx.arc(p.x, p.y, Math.max(2, r * 0.35), 0, Math.PI * 2);
-      hctx.fillStyle = nodeSec;
-      hctx.fill();
-    }
-
-    if (n.r >= 9 || isSel || isHover || camera.zoom > 1.35) {
-      hctx.font = `${isSel ? 700 : 500} ${Math.max(10, Math.min(13, 11 * p.s))}px Inter, system-ui, sans-serif`;
-      hctx.textAlign = "center";
-      hctx.textBaseline = "top";
-      hctx.fillStyle = dim ? ringCol : (isSel ? labelCol : labelMuted);
-      hctx.fillText(n.title, p.x, p.y + r + 6 * Math.max(0.7, p.s));
-    }
-  }
-
-  frame = requestAnimationFrame(drawHive);
-}
-
-function startHive() {
-  resizeHive();
-  if (!frame) frame = requestAnimationFrame(drawHive);
-}
 
 function nearestNode(x, y) {
   let best = null, dist = 1e9;
@@ -4736,6 +5274,30 @@ if (dsSelect) {
     } else {
       sendNativeMessage({ type: "load_dataset_request", size: parseInt(val, 10) });
     }
+  };
+}
+
+const modeSelect = $("#hiveModeSelect");
+if (modeSelect) {
+  modeSelect.onchange = (e) => {
+    window.setRenderMode(e.target.value);
+    toast(`LOD Mode: ${e.target.value.toUpperCase()}`);
+  };
+}
+
+const btnCanvas = $("#btnRendererCanvas");
+if (btnCanvas) {
+  btnCanvas.onclick = () => {
+    window.setRendererBackend("canvas");
+    toast("Renderer: Canvas 2D");
+  };
+}
+
+const btnWebGL2 = $("#btnRendererWebGL2");
+if (btnWebGL2) {
+  btnWebGL2.onclick = () => {
+    window.setRendererBackend("webgl2");
+    toast("Renderer: WebGL2 (Direct3D 11 via ANGLE)");
   };
 }
 
