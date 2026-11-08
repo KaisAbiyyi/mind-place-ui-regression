@@ -1,0 +1,18 @@
+# Rust build targets
+target/
+**/target/
+
+# WebView2 Runtime User Data Directory
+*.WebView2/
+**/*.WebView2/
+
+# Debug and binary symbols
+*.pdb
+*.obj
+*.log
+
+# Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

@@ -1,0 +1,148 @@
+﻿{
+    "System":  {
+                   "OS":  "Microsoft Windows 11 Home Single Language",
+                   "OS_Version":  "10.0.26300",
+                   "Processor":  "13th Gen Intel(R) Core(TM) i7-13700HX",
+                   "LogicalCores":  24,
+                   "TotalPhysicalRAM_GB":  15.7,
+                   "Timestamp":  "2026-11-08T15:56:07.4107246+07:00"
+               },
+    "Footprint":  {
+                      "GPUI_Exe_Bytes":  13429248,
+                      "GPUI_Exe_MB":  12.81,
+                      "GPUI_Runtime_Dependency":  "None (Fully self-contained native PE64 executable)",
+                      "GPUI_Total_Disk_MB":  12.81,
+                      "WebView2_Exe_Bytes":  1028096,
+                      "WebView2_Exe_MB":  0.98,
+                      "WebView2_Runtime_Dependency":  "Microsoft Edge WebView2 Evergreen Runtime",
+                      "WebView2_Runtime_Disk_MB":  878.58,
+                      "WebView2_Total_Disk_MB":  879.56
+                  },
+    "Startup":  {
+                    "GPUI":  {
+                                 "Cold_ms":  763,
+                                 "Warm_Min_ms":  604,
+                                 "Warm_Max_ms":  1064,
+                                 "Warm_Mean_ms":  715.78,
+                                 "Warm_Median_ms":  677,
+                                 "AllRuns_ms":  [
+                                                    763,
+                                                    677,
+                                                    604,
+                                                    650,
+                                                    738,
+                                                    630,
+                                                    609,
+                                                    708,
+                                                    1064,
+                                                    762
+                                                ]
+                             },
+                    "WebView2":  {
+                                     "Cold_ms":  372,
+                                     "Warm_Min_ms":  308,
+                                     "Warm_Max_ms":  559,
+                                     "Warm_Mean_ms":  416.44,
+                                     "Warm_Median_ms":  388,
+                                     "AllRuns_ms":  [
+                                                        372,
+                                                        337,
+                                                        348,
+                                                        482,
+                                                        559,
+                                                        388,
+                                                        332,
+                                                        308,
+                                                        517,
+                                                        477
+                                                    ]
+                                 }
+                },
+    "Memory":  {
+                   "InitialLaunch":  {
+                                         "GPUI_WorkingSet_MB":  76.56,
+                                         "GPUI_PrivateBytes_MB":  92.21,
+                                         "GPUI_ProcessCount":  2,
+                                         "WebView2_WorkingSet_MB":  367.68,
+                                         "WebView2_PrivateBytes_MB":  185.81,
+                                         "WebView2_ProcessCount":  8,
+                                         "WebView2_Breakdown":  [
+                                                                    {
+                                                                        "Id":  9800,
+                                                                        "Name":  "MindPlace-WebView2",
+                                                                        "WorkingSet_MB":  21.59,
+                                                                        "PrivateBytes_MB":  3.8
+                                                                    },
+                                                                    {
+                                                                        "Id":  27488,
+                                                                        "Name":  "conhost",
+                                                                        "WorkingSet_MB":  10.01,
+                                                                        "PrivateBytes_MB":  1.57
+                                                                    },
+                                                                    {
+                                                                        "Id":  15432,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  104.79,
+                                                                        "PrivateBytes_MB":  39.04
+                                                                    },
+                                                                    {
+                                                                        "Id":  16192,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  9.82,
+                                                                        "PrivateBytes_MB":  2.62
+                                                                    },
+                                                                    {
+                                                                        "Id":  17296,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  101.69,
+                                                                        "PrivateBytes_MB":  90.55
+                                                                    },
+                                                                    {
+                                                                        "Id":  23692,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  36.48,
+                                                                        "PrivateBytes_MB":  11.28
+                                                                    },
+                                                                    {
+                                                                        "Id":  9608,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  18.54,
+                                                                        "PrivateBytes_MB":  7.24
+                                                                    },
+                                                                    {
+                                                                        "Id":  34096,
+                                                                        "Name":  "msedgewebview2",
+                                                                        "WorkingSet_MB":  64.75,
+                                                                        "PrivateBytes_MB":  29.7
+                                                                    }
+                                                                ]
+                                     },
+                   "Idle30s":  {
+                                   "GPUI_WorkingSet_MB":  76.58,
+                                   "GPUI_PrivateBytes_MB":  92.23,
+                                   "WebView2_WorkingSet_MB":  392.13,
+                                   "WebView2_PrivateBytes_MB":  179.41,
+                                   "WebView2_ProcessCount":  8
+                               },
+                   "Interactive":  {
+                                       "GPUI_WorkingSet_MB":  76.58,
+                                       "GPUI_PrivateBytes_MB":  92.23,
+                                       "WebView2_WorkingSet_MB":  392.14,
+                                       "WebView2_PrivateBytes_MB":  179.41,
+                                       "WebView2_ProcessCount":  8
+                                   }
+               },
+    "CPU":  {
+                "Idle_30s":  {
+                                 "GPUI_Mean_Percent":  0.11,
+                                 "GPUI_Max_Percent":  0.29198634733507378,
+                                 "WebView2_Mean_Percent":  0.07,
+                                 "WebView2_Max_Percent":  0.97466382784708561
+                             }
+            },
+    "Lifecycle":  {
+                      "GPUI_CleanExit":  true,
+                      "WebView2_HostCleanExit":  true,
+                      "WebView2_OrphansCleanExit":  false
+                  }
+}
